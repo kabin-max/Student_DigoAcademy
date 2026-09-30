@@ -80,7 +80,7 @@ export function PublicEnrollmentSidebar({
           </div>
         </div>
 
-        <Button asChild className="w-full h-10 text-xs font-bold uppercase tracking-wider mt-4">
+        <Button className="w-full h-10 text-xs font-bold uppercase tracking-wider mt-4">
           <Link href={`/checkout/${courseId}?mode=${mode}`}>Enroll Now</Link>
         </Button>
       </div>
