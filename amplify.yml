@@ -9,6 +9,8 @@ frontend:
         - npm run build
         # Remove the Next.js cache to drastically reduce the artifact size deployed to AWS Amplify
         - rm -rf .next/cache
+        # Remove source maps to save ~150MB of space, keeping the artifact well below the 220MB limit
+        - find .next -name "*.map" -type f -delete
   artifacts:
     baseDirectory: .next
     files:
