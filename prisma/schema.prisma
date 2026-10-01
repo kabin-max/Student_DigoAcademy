@@ -5,8 +5,9 @@
 // - CLI migrate: DIRECT_URL if set, else DATABASE_URL (prisma.config.ts).
 
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider      = "prisma-client"
+  output        = "../lib/generated/prisma"
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "rhel-openssl-1.0.x"]
 }
 
 datasource db {
