@@ -5,8 +5,7 @@
 // - CLI migrate: DIRECT_URL if set, else DATABASE_URL (prisma.config.ts).
 
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
