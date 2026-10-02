@@ -1,13 +1,7 @@
-import { Video } from 'lucide-react';
-import Link from 'next/link';
-
 import { getStudentVideos } from '@/features/videos/server/data';
-import { getYouTubeEmbedUrl } from '@/shared/utils/youtube';
 import { requireRole } from '@/lib/auth/session';
-import { Badge } from '@/shared/components/ui/badge';
-import { Button } from '@/shared/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { ROLES } from '@/shared/constants/roles';
+import { StudentVideoList } from '@/features/videos/components/StudentVideoList';
 
 export default async function StudentVideosPage() {
   const session = await requireRole(ROLES.STUDENT);
@@ -24,51 +18,7 @@ export default async function StudentVideosPage() {
         </div>
       </div>
 
-      {videos.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 py-12 text-center">
-            <Video className="size-10 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">No videos available</h2>
-            <p className="max-w-md text-sm text-muted-foreground">
-              Once class recordings or video lessons are added to your enrolled courses, they will show up here.
-            </p>
-            <Button nativeButton={false} render={<Link href="/student/courses">Browse courses</Link>} />
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {videos.map((v) => {
-            const ytEmbed = getYouTubeEmbedUrl(v.videoUrl);
-            return (
-              <Card key={v.id} className="flex flex-col overflow-hidden">
-                <div className="relative aspect-video bg-black">
-                  {ytEmbed ? (
-                    <iframe
-                      src={ytEmbed}
-                      title={v.title}
-                      className="size-full border-0"
-                      allowFullScreen
-                    />
-                  ) : v.videoUrl ? (
-                    <video controls src={v.videoUrl} className="size-full" />
-                  ) : (
-                    <div className="flex size-full items-center justify-center text-xs text-muted-foreground">
-                      No video available
-                    </div>
-                  )}
-                </div>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-                    <span className="truncate">{v.courseTitle}</span>
-                    <Badge variant="outline">{v.batchName ?? v.sectionTitle}</Badge>
-                  </div>
-                  <CardTitle className="text-base font-semibold leading-snug">{v.title}</CardTitle>
-                </CardHeader>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+      <StudentVideoList videos={videos} />
     </div>
   );
 }
