@@ -6,6 +6,7 @@ frontend:
         - npm ci
     build:
       commands:
+        - npx prisma generate
         - npm run build
         # Remove the Next.js cache to drastically reduce the artifact size deployed to AWS Amplify
         - rm -rf .next/cache
