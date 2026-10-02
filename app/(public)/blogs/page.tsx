@@ -39,34 +39,29 @@ export default function BlogsPage() {
       <section className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
 
 
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <article key={i} className="group flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-brand-blue/30">
-              <div className="aspect-video overflow-hidden bg-muted">
-                <img
-                  src={`https://images.unsplash.com/photo-${1550000000000 + i}?w=600&h=400&fit=crop`}
-                  alt={`Blog Post ${i + 1}`}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="flex flex-1 flex-col p-6">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="font-medium text-brand-blue">Technology</span>
-                  <span>•</span>
-                  <span>{new Date().toLocaleDateString()}</span>
-                </div>
-                <h3 className="mt-4 font-heading text-xl font-semibold text-foreground transition-colors group-hover:text-brand-blue">
-                  Dummy Blog Title {i + 1}
-                </h3>
-                <p className="mt-2 flex-1 text-sm text-muted-foreground line-clamp-3">
-                  This is a placeholder excerpt for the blog post. It gives a brief overview of what the article is about, encouraging readers to click and read the full story.
-                </p>
-                <div className="mt-6 flex items-center font-semibold text-brand-blue">
-                  Read article <ArrowRight className="ml-2 size-4 transition-transform group-hover:translate-x-1" />
-                </div>
-              </div>
-            </article>
-          ))}
+        <div className="flex min-h-[40vh] flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/50 text-center">
+          <div className="rounded-full bg-muted p-4">
+            <svg
+              className="size-8 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5L18.5 7M4 16h16M4 12h16M4 8h16"
+              />
+            </svg>
+          </div>
+          <h3 className="mt-4 font-heading text-lg font-semibold text-foreground">
+            No blogs available yet
+          </h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Check back later for new articles and insights.
+          </p>
         </div>
       </section>
     </div>

@@ -46,11 +46,11 @@ export function MfaSetup({ enabled, required }: { enabled: boolean; required?: b
       toast.error(error?.message ?? 'Could not start 2FA setup');
       return;
     }
-    if (data.method === 'totp') {
+    if ('totpURI' in data) {
       setTotpUri(data.totpURI);
       setBackupCodes(data.backupCodes);
-      setStep('confirm');
     }
+    setStep('confirm');
   }
 
   async function confirmEnable() {

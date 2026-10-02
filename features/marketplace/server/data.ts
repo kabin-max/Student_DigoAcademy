@@ -2,7 +2,7 @@ import 'server-only';
 
 import type { CourseFilters } from '@/features/marketplace/schemas';
 import { db } from '@/lib/db';
-import { Prisma } from '@/lib/generated/prisma/client';
+import { Prisma } from '@prisma/client';
 import { isS3Configured, presignDownload } from '@/lib/storage';
 
 /**

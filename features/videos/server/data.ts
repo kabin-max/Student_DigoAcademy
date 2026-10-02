@@ -5,6 +5,7 @@ import { isS3Configured, presignDownload } from '@/lib/storage';
 
 export interface VideoOverview {
   id: string;
+  type: 'LESSON' | 'BATCH';
   title: string;
   courseTitle: string;
   sectionTitle?: string;
@@ -51,6 +52,7 @@ export async function getInstructorVideos(instructorId: string): Promise<VideoOv
   const lessonItems = await Promise.all(
     courseLessons.map(async (l) => ({
       id: l.id,
+      type: 'LESSON' as const,
       title: l.title,
       courseTitle: l.section.course.title,
       sectionTitle: l.section.title,
@@ -64,6 +66,7 @@ export async function getInstructorVideos(instructorId: string): Promise<VideoOv
   const batchItems = await Promise.all(
     batchVideos.map(async (v) => ({
       id: v.id,
+      type: 'BATCH' as const,
       title: v.title,
       courseTitle: v.batch.course.title,
       batchName: v.batch.name,
@@ -113,6 +116,7 @@ export async function getStudentVideos(studentId: string): Promise<VideoOverview
   const lessonItems = await Promise.all(
     courseLessons.map(async (l) => ({
       id: l.id,
+      type: 'LESSON' as const,
       title: l.title,
       courseTitle: l.section.course.title,
       sectionTitle: l.section.title,
@@ -127,6 +131,7 @@ export async function getStudentVideos(studentId: string): Promise<VideoOverview
   const batchItems = await Promise.all(
     batchVideos.map(async (v) => ({
       id: v.id,
+      type: 'BATCH' as const,
       title: v.title,
       courseTitle: v.batch.course.title,
       batchName: v.batch.name,
@@ -164,6 +169,7 @@ export async function getAdminVideos(): Promise<VideoOverview[]> {
   const lessonItems = await Promise.all(
     courseLessons.map(async (l) => ({
       id: l.id,
+      type: 'LESSON' as const,
       title: l.title,
       courseTitle: l.section.course.title,
       sectionTitle: l.section.title,
@@ -178,6 +184,7 @@ export async function getAdminVideos(): Promise<VideoOverview[]> {
   const batchItems = await Promise.all(
     batchVideos.map(async (v) => ({
       id: v.id,
+      type: 'BATCH' as const,
       title: v.title,
       courseTitle: v.batch.course.title,
       batchName: v.batch.name,

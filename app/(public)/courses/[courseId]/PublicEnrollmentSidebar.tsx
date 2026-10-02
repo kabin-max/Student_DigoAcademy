@@ -80,7 +80,9 @@ export function PublicEnrollmentSidebar({
           </div>
         </div>
 
-        <Button className="w-full h-10 text-xs font-bold uppercase tracking-wider mt-4" render={<Link href={`/checkout/${courseId}?mode=${mode}`}>Enroll Now</Link>} />
+        <Button className="w-full h-10 text-xs font-bold uppercase tracking-wider mt-4">
+          <Link href={`/checkout/${courseId}?mode=${mode}`}>Enroll Now</Link>
+        </Button>
       </div>
 
       <div className="mt-8 pt-6 border-t border-border/60">
