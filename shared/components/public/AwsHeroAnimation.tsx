@@ -1,193 +1,231 @@
 'use client';
 
-import { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Line, Float, Points, PointMaterial, Html } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useRef, useState } from 'react';
+import Image from 'next/image';
+import { motion, useAnimationFrame, useMotionValue, useTransform, useSpring, AnimatePresence } from 'motion/react';
+import { Container, ShipWheel, Boxes, Code2, Terminal, Activity, Workflow } from 'lucide-react';
 
-// ------------------------------------------------------------------
-// Types & Data
-// ------------------------------------------------------------------
-const AWS_SERVICES = [
-  { name: 'EC2', image: '/hero/ec2.png', radius: 4.5, speed: 0.3, color: '#3366CC', badge: '1' },
-  { name: 'S3', image: '/hero/s3.png', radius: 6.0, speed: 0.25, color: '#FF9900', badge: '2' },
-  { name: 'Lambda', image: '/hero/lambda.png', radius: 7.5, speed: 0.2, color: '#8C4FFF', badge: '3' },
-  { name: 'ElasticBean', image: '/hero/elasticbean.png', radius: 9.0, speed: 0.15, color: '#E7157B', badge: '4' },
-  { name: 'CloudFront', image: '/hero/cloudfront.png', radius: 10.5, speed: 0.1, color: '#00B894', badge: '5' },
+const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+    <path d="M9 18c-4.51 2-5-2-7-2" />
+  </svg>
+);
+
+type Pillar = {
+  id: string;
+  name: string;
+  description: string;
+  Icon: React.ElementType;
+  color: string;
+  bg: string;
+  orbit: 'inner' | 'outer';
+  startAngle: number;
+};
+
+const PILLARS: Pillar[] = [
+  // Inner orbit (radius 165)
+  { id: 'docker', name: 'Docker', description: 'Containerize applications for seamless deployment.', Icon: Container, color: 'text-blue-400', bg: 'bg-blue-400/10', orbit: 'inner', startAngle: 0 },
+  { id: 'k8s', name: 'Kubernetes', description: 'Orchestrate and scale your containerized workloads.', Icon: ShipWheel, color: 'text-blue-500', bg: 'bg-blue-500/10', orbit: 'inner', startAngle: 90 },
+  { id: 'terraform', name: 'Terraform', description: 'Infrastructure as Code for automated provisioning.', Icon: Boxes, color: 'text-purple-400', bg: 'bg-purple-400/10', orbit: 'inner', startAngle: 180 },
+  { id: 'github', name: 'GitHub', description: 'Version control and CI/CD pipelines.', Icon: GithubIcon, color: 'text-white', bg: 'bg-white/10', orbit: 'inner', startAngle: 270 },
+  // Outer orbit (radius 275)
+  { id: 'python', name: 'Python', description: 'Versatile scripting and automation language.', Icon: Code2, color: 'text-yellow-400', bg: 'bg-yellow-400/10', orbit: 'outer', startAngle: 0 },
+  { id: 'linux', name: 'Linux', description: 'The foundation of modern cloud environments.', Icon: Terminal, color: 'text-slate-300', bg: 'bg-slate-300/10', orbit: 'outer', startAngle: 120 },
+  { id: 'argocd', name: 'ArgoCD', description: 'Declarative GitOps continuous delivery tool.', Icon: Workflow, color: 'text-emerald-400', bg: 'bg-emerald-400/10', orbit: 'outer', startAngle: 240 },
 ];
 
-// ------------------------------------------------------------------
-// Components
-// ------------------------------------------------------------------
+// Radii fitting within the container size
+const INNER_RADIUS = 135; 
+const OUTER_RADIUS = 220; 
 
-function CentralLogo() {
+const OrbitingPillar = ({ 
+  pillar, 
+  isHovered, 
+  setHoveredId 
+}: { 
+  pillar: Pillar; 
+  isHovered: boolean; 
+  setHoveredId: (id: string | null) => void;
+}) => {
+  const radius = pillar.orbit === 'inner' ? INNER_RADIUS : OUTER_RADIUS;
+  const speed = pillar.orbit === 'inner' ? 0.35 : 0.20; // rad/s
+  const angleRef = useRef((pillar.startAngle * Math.PI) / 180);
+
+  const x = useMotionValue(Math.cos(angleRef.current) * radius);
+  const y = useMotionValue(Math.sin(angleRef.current) * radius);
+
+  useAnimationFrame((t, delta) => {
+    if (!isHovered) {
+      angleRef.current += speed * (delta / 1000);
+      x.set(Math.cos(angleRef.current) * radius);
+      y.set(Math.sin(angleRef.current) * radius);
+    }
+  });
+
   return (
-    <Html center zIndexRange={[100, 0]}>
-      <div className="relative flex items-center justify-center group pointer-events-auto">
-        {/* Outer glowing dashed/dotted ring */}
-        <div className="absolute w-56 h-56 rounded-full border border-dashed border-cyan-500/40 bg-cyan-900/5 animate-[spin_20s_linear_infinite]" />
+    <motion.div
+      style={{ x, y }}
+      className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 ${isHovered ? 'z-50' : 'z-10'}`}
+      onMouseEnter={() => setHoveredId(pillar.id)}
+      onMouseLeave={() => setHoveredId(null)}
+      onFocus={() => setHoveredId(pillar.id)}
+      onBlur={() => setHoveredId(null)}
+      tabIndex={0}
+      aria-label={pillar.name}
+    >
+      <div className="relative flex items-center justify-center cursor-pointer transition-transform hover:scale-110">
         
-        {/* Inner solid ring with glow */}
-        <div className="absolute w-44 h-44 rounded-full border border-cyan-400/50 shadow-[0_0_40px_rgba(6,182,212,0.4)]" />
-        
-        {/* Core glow */}
-        <div className="absolute w-32 h-32 rounded-full bg-cyan-500/20 blur-2xl" />
-        
-        {/* Logo */}
-        <div className="relative z-10 w-36 h-36 rounded-full bg-[#050505]/60 backdrop-blur-md shadow-2xl border border-white/10 flex items-center justify-center p-4">
-          <img 
+        {/* Active Pulse Ring */}
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: [0, 1, 0], scale: [0.8, 1.5, 2] }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ repeat: Infinity, duration: 1.5, ease: "easeOut" }}
+              className={`absolute inset-0 rounded-full border-2 ${pillar.bg.replace('bg-', 'border-').replace('/10', '/50')}`}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Icon Container */}
+        <div className={`relative z-10 w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center shadow-[0_0_15px_rgba(0,0,0,0.5)] ${pillar.bg}`}>
+          <pillar.Icon className={`w-6 h-6 md:w-7 md:h-7 ${pillar.color}`} />
+        </div>
+
+        {/* Tooltip */}
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="absolute top-full mt-4 left-1/2 -translate-x-1/2 w-48 p-3 rounded-xl border border-white/10 bg-slate-900/90 backdrop-blur-md shadow-2xl pointer-events-none"
+            >
+              <div className="text-sm font-semibold text-white mb-1">{pillar.name}</div>
+              <div className="text-xs text-slate-300 leading-tight">{pillar.description}</div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+};
+
+export function AwsHeroAnimation() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // Mouse Parallax
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useTransform(useSpring(mouseY, { stiffness: 100, damping: 30 }), [-0.5, 0.5], [15, -15]);
+  const rotateY = useTransform(useSpring(mouseX, { stiffness: 100, damping: 30 }), [-0.5, 0.5], [-15, 15]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+  return (
+    <div 
+      className="relative w-full aspect-square max-w-[640px] flex items-center justify-center mx-auto overflow-visible rounded-full"
+      style={{ perspective: 1000 }}
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    >
+      <motion.div 
+        className="relative w-full h-full flex items-center justify-center"
+        style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+      >
+        {/* Background radial glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.15)_0%,transparent_60%)] pointer-events-none rounded-full" />
+
+        {/* Static SVG Orbit Rings */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="-300 -300 600 600">
+          <circle 
+            cx="0" cy="0" r={INNER_RADIUS} 
+            fill="none" 
+            stroke="rgba(6, 182, 212, 0.3)" 
+            strokeWidth="1.5" 
+            strokeDasharray="6 8" 
+          />
+          <circle 
+            cx="0" cy="0" r={OUTER_RADIUS} 
+            fill="none" 
+            stroke="rgba(99, 102, 241, 0.3)" 
+            strokeWidth="1.5" 
+            strokeDasharray="6 8" 
+          />
+        </svg>
+
+        {/* Orbiting Pillars */}
+        {PILLARS.map((pillar) => (
+          <OrbitingPillar 
+            key={pillar.id} 
+            pillar={pillar} 
+            isHovered={hoveredId === pillar.id}
+            setHoveredId={setHoveredId}
+          />
+        ))}
+
+        {/* Center Logo */}
+        <div className="relative z-10 w-28 h-28 md:w-36 md:h-36 rounded-full bg-slate-950/80 backdrop-blur-md shadow-2xl border border-white/10 flex items-center justify-center p-5">
+          {/* Pulsing Concentric Rings */}
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute inset-0 rounded-full border border-cyan-500/30"
+              initial={{ scale: 1, opacity: 0.5 }}
+              animate={{ scale: [1, 1.5, 2], opacity: [0.5, 0.2, 0] }}
+              transition={{
+                repeat: Infinity,
+                duration: 3,
+                ease: "linear",
+                delay: i * 1,
+              }}
+            />
+          ))}
+          
+          {/* Core glow */}
+          <div className="absolute inset-0 rounded-full bg-cyan-500/20 blur-xl md:blur-2xl" />
+          
+          {/* Inner ring */}
+          <div className="absolute -inset-2 rounded-full border border-cyan-400/50 shadow-[0_0_40px_rgba(6,182,212,0.4)]" />
+          
+          <Image 
             src="/AWS.png" 
-            alt="Central Logo" 
-            className="w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+            alt="Center Logo" 
+            width={100}
+            height={100}
+            className="relative z-10 w-full h-full object-contain drop-shadow-[0_0_15px_rgba(255,255,255,0.2)]" 
           />
         </div>
-      </div>
-    </Html>
-  );
-}
-
-function ServiceNode({ service, index }: { service: typeof AWS_SERVICES[0]; index: number }) {
-  const ref = useRef<THREE.Group>(null);
-  
-  // Create circular orbit path
-  const points = useMemo(() => {
-    const pts = [];
-    for (let i = 0; i <= 64; i++) {
-      const angle = (i / 64) * Math.PI * 2;
-      pts.push(new THREE.Vector3(Math.cos(angle) * service.radius, 0, Math.sin(angle) * service.radius));
-    }
-    return pts;
-  }, [service.radius]);
-
-  const offset = (index * (Math.PI * 2)) / AWS_SERVICES.length + (index * 0.5);
-
-  useFrame((state) => {
-    if (ref.current) {
-      const t = state.clock.elapsedTime * service.speed + offset;
-      ref.current.position.x = Math.cos(t) * service.radius;
-      ref.current.position.z = Math.sin(t) * service.radius;
-    }
-  });
-
-  return (
-    <group>
-      {/* Orbit Ring */}
-      <Line 
-        points={points} 
-        color="#ffffff" 
-        opacity={0.05} 
-        transparent 
-        lineWidth={1} 
-      />
-      
-      {/* Orbiting Node */}
-      <group ref={ref}>
-        <Html center zIndexRange={[100, 0]}>
-          <div className="relative flex flex-col items-center justify-center pointer-events-auto transition-transform hover:scale-110">
-            {/* Dashed outer ring for icon */}
-            <div 
-              className="absolute -inset-1 rounded-full border border-dashed animate-[spin_8s_linear_infinite]"
-              style={{ borderColor: service.color, opacity: 0.7 }}
-            />
-            
-            {/* Glow under icon */}
-            <div 
-              className="absolute inset-0 rounded-full blur-md"
-              style={{ backgroundColor: service.color, opacity: 0.25 }}
-            />
-            
-            {/* Icon Container */}
-            <div 
-              className="relative flex items-center justify-center w-14 h-14 rounded-full bg-[#0f172a]/90 backdrop-blur-sm border border-white/10"
-              style={{ boxShadow: `0 0 20px ${service.color}30` }}
-            >
-              <img 
-                src={service.image} 
-                alt={service.name}
-                className="w-7 h-7 object-contain"
-              />
-              
-              {/* Badge */}
-              <div 
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-lg"
-                style={{ backgroundColor: service.color }}
-              >
-                {service.badge}
-              </div>
-            </div>
-          </div>
-        </Html>
-      </group>
-    </group>
-  );
-}
-
-// 3. Background Particle System
-function ParticleSystem() {
-  const count = 300;
-  const positions = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const r = 8 + Math.random() * 20;
-      const theta = Math.random() * 2 * Math.PI;
-      const phi = Math.acos((Math.random() * 2) - 1);
-      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
-      pos[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-      pos[i * 3 + 2] = r * Math.cos(phi);
-    }
-    return pos;
-  }, [count]);
-
-  const ref = useRef<THREE.Points>(null);
-
-  useFrame((state) => {
-    if (ref.current) {
-      ref.current.rotation.y = state.clock.elapsedTime * 0.01;
-      ref.current.rotation.x = state.clock.elapsedTime * 0.005;
-    }
-  });
-
-  return (
-    <Points ref={ref} positions={positions} stride={3}>
-      <PointMaterial transparent color="#38bdf8" size={0.03} sizeAttenuation={true} depthWrite={false} opacity={0.3} />
-    </Points>
-  );
-}
-
-// ------------------------------------------------------------------
-// Main Component
-// ------------------------------------------------------------------
-export function AwsHeroAnimation() {
-  return (
-    <div className="relative w-full h-full min-h-[600px] lg:min-h-[800px] bg-[#020617] overflow-hidden rounded-2xl">
-      <Canvas camera={{ position: [0, 8, 14], fov: 60 }} dpr={[1, 2]}>
-        <color attach="background" args={['#020617']} />
-        
-        <Float speed={1} rotationIntensity={0.2} floatIntensity={0.2}>
-          {/* Apply a slight tilt so we see the flat orbits in perspective */}
-          <group rotation={[-0.3, 0, 0]}>
-            <CentralLogo />
-            {AWS_SERVICES.map((service, idx) => (
-              <ServiceNode key={service.name} service={service} index={idx} />
-            ))}
-          </group>
-        </Float>
-        
-        <ParticleSystem />
-        
-        <OrbitControls 
-          enableZoom={false} 
-          enablePan={false} 
-          autoRotate 
-          autoRotateSpeed={0.3} 
-          maxPolarAngle={Math.PI / 2 - 0.2}
-          minPolarAngle={Math.PI / 4}
-        />
-      </Canvas>
-      
-      {/* Background gradients for depth */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(6,182,212,0.15)_0%,rgba(2,6,23,0)_70%)]" />
-      <div className="absolute inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(2,6,23,1)]" />
+      </motion.div>
     </div>
   );
 }
