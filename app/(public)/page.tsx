@@ -208,8 +208,8 @@ export default async function HomePage() {
               </div>
               <Magnetic>
                 <Button
-                  size="default"
-                  className="px-12 py-3 text-base"
+                  size="lg"
+                  className="w-full sm:w-auto px-10 h-14 text-lg"
                   nativeButton={false}
                   render={
                     <Link href="/courses">
@@ -228,9 +228,9 @@ export default async function HomePage() {
         </HeroStage>
       </section>
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Trusted By Section                                                 */}
-      {/* ------------------------------------------------------------------ */}
+      {/* ------------------------------------------------------------------ 
+          Trusted By Section (Commented out)
+          ------------------------------------------------------------------ 
       <section className="border-y border-border/50 bg-background py-10 overflow-hidden relative">
         <style>{`
           @keyframes slideLeft {
@@ -260,6 +260,7 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      */}
 
       {/* ------------------------------------------------------------------ */}
       {/* Learn from Cloud Professionals                                     */}
