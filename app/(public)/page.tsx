@@ -190,13 +190,23 @@ export default async function HomePage() {
               ]}
             />
             <HeroItem>
-              <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <p className="mt-4 text-sm sm:text-base text-black dark:text-white leading-relaxed">
                 Success isn&apos;t something that happens by chance. It&apos;s a combination of hard
                 effort, perseverance, learning, studying, sacrifice, and, most importantly, a
                 passion for what you&apos;re doing or learning.
               </p>
             </HeroItem>
-            <HeroItem className="mt-6 flex flex-wrap items-center justify-start gap-3">
+            <HeroItem className="mt-8 flex flex-col items-start gap-8">
+              <div className="flex items-center gap-6 text-left border-l-2 border-brand-blue pl-4">
+                <div>
+                  <p className="text-2xl font-bold text-foreground">10K+</p>
+                  <p className="text-sm font-medium text-black dark:text-white">Students Trained</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">150+</p>
+                  <p className="text-sm font-medium text-black dark:text-white">Workshops Conducted</p>
+                </div>
+              </div>
               <Magnetic>
                 <Button
                   size="default"
@@ -211,14 +221,52 @@ export default async function HomePage() {
               </Magnetic>
             </HeroItem>
           </div>
-          <div className="flex-1 w-full max-w-xl lg:max-w-none flex justify-end">
-            <img
-              src="/hero-learning.png"
-              alt="Learning Illustration"
-              className="w-full max-w-[480px] h-auto [mask-image:radial-gradient(circle,black_60%,transparent_100%)]"
-            />
+          <div className="flex-1 w-full lg:max-w-[55%] flex justify-center items-center lg:justify-end pl-0 lg:pl-10 mt-8 lg:mt-0">
+            <div className="relative w-full max-w-2xl">
+              <Image 
+                src="/hero-learning.png" 
+                alt="Hero Learning" 
+                width={800} 
+                height={600} 
+                className="w-full h-auto object-contain [mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)] [-webkit-mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)] drop-shadow-2xl"
+                priority
+              />
+            </div>
           </div>
         </HeroStage>
+      </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Trusted By Section                                                 */}
+      {/* ------------------------------------------------------------------ */}
+      <section className="border-y border-border/50 bg-background py-10 overflow-hidden relative">
+        <style>{`
+          @keyframes slideLeft {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+          }
+          .animate-slide-left {
+            animation: slideLeft 20s linear infinite;
+          }
+        `}</style>
+        <div className="mx-auto flex flex-col md:flex-row max-w-7xl items-center px-4 sm:px-6 lg:px-8">
+          <div className="shrink-0 md:w-48 mb-6 md:mb-0 md:mr-8 z-10 bg-background relative md:shadow-[20px_0_20px_-10px_var(--background)]">
+            <h3 className="text-xl md:text-lg font-bold text-black dark:text-white leading-tight text-center md:text-left">
+              Trusted by 100+<br className="hidden md:block" />clients
+            </h3>
+          </div>
+          <div className="flex flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)] md:[mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] w-full">
+            <div className="flex w-max animate-slide-left items-center gap-10 sm:gap-16 transition-all duration-300">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-center gap-10 sm:gap-16 shrink-0">
+                  <Image src="/partner/iims.png" alt="IIMS" width={120} height={60} className="object-contain" />
+                  <Image src="/partner/purbanchal.png" alt="Purbanchal University" width={120} height={60} className="object-contain" />
+                  <Image src="/partner/techspire.png" alt="Techspire" width={120} height={60} className="object-contain" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ------------------------------------------------------------------ */}
@@ -226,10 +274,10 @@ export default async function HomePage() {
       {/* ------------------------------------------------------------------ */}
       <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
         <Reveal className="mb-12 text-center max-w-3xl mx-auto">
-          <h2 className="mt-2 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
             Learn from Certified, Become Certified
           </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="mt-4 text-lg text-black dark:text-white">
             Our training is supported by professionals with hands-on experience in AWS and modern cloud technologies. Our team includes AWS-certified professionals who bring practical knowledge from real cloud infrastructure and DevOps environments into our training programs.
           </p>
         </Reveal>
@@ -264,10 +312,10 @@ export default async function HomePage() {
           <div className="lg:col-span-2 flex justify-center">
             <div className="text-center">
               <Reveal>
-                <h2 className="font-heading text-4xl font-bold tracking-tight sm:text-5xl text-foreground">
+                <h2 className="font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
                   The power of dual-learning
                 </h2>
-                <p className="mt-2 text-base text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+                <p className="mt-2 text-base text-black dark:text-white leading-relaxed max-w-2xl mx-auto">
                   Digo Academy combines the best of both worlds—structured guidance with the flexibility you need.
                 </p>
               </Reveal>
@@ -291,7 +339,7 @@ export default async function HomePage() {
                     <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-brand-blue transition-colors duration-300">
                       Live Cohorts
                     </h3>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors duration-300">
+                    <p className="mt-3 text-sm text-black dark:text-white leading-relaxed group-hover:text-black dark:text-white transition-colors duration-300">
                       Real-time interaction with industry experts, weekly milestones, and peer
                       accountability to keep you on track with personalized mentorship.
                     </p>
@@ -312,7 +360,7 @@ export default async function HomePage() {
                     <h3 className="font-heading text-xl font-bold text-foreground group-hover:text-violet-600 transition-colors duration-300">
                       Self-Paced Mastery
                     </h3>
-                    <p className="mt-3 text-sm text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors duration-300">
+                    <p className="mt-3 text-sm text-black dark:text-white leading-relaxed group-hover:text-black dark:text-white transition-colors duration-300">
                       Binge-worthy video content, interactive labs, and lifetime access to
                       resources so you can learn at your own pace with complete flexibility.
                     </p>
@@ -402,7 +450,7 @@ export default async function HomePage() {
             <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
               How to Enroll at Digo Academy
             </h2>
-            <p className="mt-2 text-muted-foreground">
+            <p className="mt-2 text-black dark:text-white">
               Watch how to find your course, complete your enrollment, and start learning in just a few simple steps.
             </p>
           </Reveal>
@@ -428,10 +476,10 @@ export default async function HomePage() {
         <section id="courses" className="scroll-mt-24 mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
           <Reveal className="mb-8 text-center">
             <div>
-              <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight sm:text-4xl text-foreground">
+              <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
                 Explore Our Courses
               </h2>
-              <p className="mt-2 text-muted-foreground">
+              <p className="mt-2 text-black dark:text-white">
                 Build practical skills through certification-focused and career-oriented learning paths.
               </p>
             </div>
@@ -454,7 +502,7 @@ export default async function HomePage() {
                       <h3 className="font-heading text-lg font-semibold text-foreground group-hover:text-brand-blue transition-colors duration-300">
                         Explore More
                       </h3>
-                      <p className="text-sm text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">
+                      <p className="text-sm text-black dark:text-white group-hover:text-black dark:text-white transition-colors duration-300">
                         Discover all our courses and find the perfect fit for your learning journey
                       </p>
                     </div>

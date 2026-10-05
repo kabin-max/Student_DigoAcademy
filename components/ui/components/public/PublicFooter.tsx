@@ -40,17 +40,17 @@ const SOCIALS = [
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-border/80 bg-white text-slate-600 dark:bg-card">
+    <footer className="border-t border-border/80 bg-white text-black dark:text-white dark:bg-card">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[2fr_1fr_1fr] lg:px-8">
         <div className="max-w-xs">
           <BrandLogo className="h-10" />
-          <p className="mt-4 text-sm text-slate-500">
+          <p className="mt-4 text-sm text-black dark:text-white">
             Live and self-paced courses, taught by practitioners. Learn the skills that move your
             career forward.
           </p>
           <a
             href="mailto:support@digoacademy.com"
-            className="mt-4 inline-flex items-center gap-2 text-sm text-slate-500 transition-colors hover:text-primary"
+            className="mt-4 inline-flex items-center gap-2 text-sm text-black dark:text-white transition-colors hover:text-primary"
           >
             <Mail className="size-4" />
             support@digoacademy.com
@@ -61,7 +61,7 @@ export function PublicFooter() {
                 key={social.label}
                 href={social.href}
                 aria-label={social.label}
-                className="flex size-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-primary/10 hover:text-primary dark:bg-slate-800 dark:text-slate-300"
+                className="flex size-9 items-center justify-center rounded-full bg-slate-100 text-black dark:text-white transition-colors hover:bg-primary/10 hover:text-primary dark:bg-slate-800 dark:text-slate-300"
               >
                 <social.icon className="size-4" />
               </a>
@@ -76,7 +76,7 @@ export function PublicFooter() {
                 <li key={link.label}>
                   <Link
                     href={link.href}
-                    className="text-slate-500 transition-colors hover:text-primary"
+                    className="text-black dark:text-white transition-colors hover:text-primary"
                   >
                     {link.label}
                   </Link>
@@ -87,7 +87,7 @@ export function PublicFooter() {
         ))}
       </div>
       <div className="border-t border-slate-200/80 dark:border-border/60">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 text-sm text-slate-500 md:flex-row md:items-center md:justify-between sm:px-6 lg:px-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-6 text-sm text-black dark:text-white md:flex-row md:items-center md:justify-between sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
             <span>© {new Date().getFullYear()} Digo Academy. All rights reserved.</span>
             <span className="hidden md:inline text-slate-300 dark:text-slate-700">|</span>

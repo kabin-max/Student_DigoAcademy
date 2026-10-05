@@ -1,45 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ArrowRight, Quote, Star } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { Reveal } from '@/shared/components/public/Reveal';
-
-const REVIEWS = [
-  {
-    quote:
-      'Thanks to Digo Academy I could transition from non-tech into software engineering within 4 months. The weekly code reviews and live mentorship gave me the confidence to crack high-paying interviews.',
-    name: 'Wade Warren',
-    role: 'Frontend Engineer @ Veloce Tech',
-    rating: 5,
-    img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80',
-  },
-  {
-    quote:
-      'I think this is the most production-aligned curriculum I have ever completed. Deploying scalable Docker containers, microservices, and AI pipelines set my portfolio apart from everyone else.',
-    name: 'Theresa Jordan',
-    role: 'AI Applications Developer @ CloudForge',
-    rating: 5,
-    img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80',
-  },
-  {
-    quote:
-      'The live sprint cadence and pair-programming voice rooms are incredible. You never get stuck in tutorial hell because senior engineers look at your Git commits and help you debug in real time.',
-    name: 'James Wilson',
-    role: 'Full-Stack Engineer @ Remote Global',
-    rating: 5,
-    img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&auto=format&fit=crop&q=80',
-  },
-  {
-    quote:
-      'From zero algorithmic thinking to clearing hard technical evaluations. The hackathons and mock interviews prepared me thoroughly for production pressure.',
-    name: 'Jhon Tosan',
-    role: 'Software Architect @ FinTech Systems',
-    rating: 5,
-    img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-  },
-];
 
 const FAQS = [
   {
@@ -69,33 +34,7 @@ export interface ReviewsAndFaqSectionProps {
 }
 
 export function ReviewsAndFaqSection({ showFaq = true }: ReviewsAndFaqSectionProps = {}) {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [email, setEmail] = useState('');
-  const [isHovered, setIsHovered] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Auto-scroll functionality
-  useEffect(() => {
-    if (!isHovered) {
-      intervalRef.current = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % REVIEWS.length);
-      }, 4000); // Auto-advance every 4 seconds
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isHovered]);
-
-  const nextReview = () => {
-    setCurrentIndex((prev) => (prev + 1) % REVIEWS.length);
-  };
-
-  const prevReview = () => {
-    setCurrentIndex((prev) => (prev - 1 + REVIEWS.length) % REVIEWS.length);
-  };
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,66 +43,9 @@ export function ReviewsAndFaqSection({ showFaq = true }: ReviewsAndFaqSectionPro
     setEmail('');
   };
 
-  // Determine which 3 reviews to show on desktop
-  const visibleReviews = [
-    REVIEWS[currentIndex],
-    REVIEWS[(currentIndex + 1) % REVIEWS.length],
-    REVIEWS[(currentIndex + 2) % REVIEWS.length],
-  ];
-
   return (
     <section className="relative bg-background py-20 sm:py-28">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-        {/* Testimonials Header with Prev/Next Controls */}
-        <div className="flex flex-wrap items-end justify-center gap-4 pb-14">
-          <Reveal>
-            <div className="relative text-center">
-              {/* Blue playful doodle marks */}
-              <div className="absolute -top-6 -left-3 text-brand-blue/50 select-none pointer-events-none">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M4 12C6 8 8 6 12 4" />
-                </svg>
-              </div>
-              <h2 className="font-heading text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
-                Real Stories From<br />Our Cohort Builders.
-              </h2>
-            </div>
-          </Reveal>
-        </div>
-
-       
-        {/* Testimonial Cards Grid */}
-        <div 
-          className="grid gap-5 md:grid-cols-3"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          {visibleReviews.map((rev, i) => (
-            <div
-              key={`${currentIndex}-${i}`}
-              className="flex flex-col justify-between rounded-3xl border border-border/60 bg-card p-7 shadow-sm transition-all duration-500 hover:shadow-lg hover:-translate-y-1.5 hover:border-border/80 animate-fade-in"
-            >
-              <div>
-                <Quote className="size-8 text-brand-blue/25 fill-brand-blue/8" />
-                <p className="mt-4 text-sm text-foreground leading-relaxed">
-                  &ldquo;{rev.quote}&rdquo;
-                </p>
-              </div>
-
-              <div className="mt-7 flex items-center gap-3 pt-5 border-t border-border/50">
-                <div className="min-w-0">
-                  <p className="font-heading font-bold text-sm text-foreground truncate">{rev.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">{rev.role}</p>
-                  <div className="mt-1 flex items-center gap-0.5">
-                    {[...Array(rev.rating)].map((_, idx) => (
-                      <Star key={idx} className="size-3 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
 
         {/* FAQ & Quick Consultation Section */}
         {showFaq && (
@@ -172,7 +54,7 @@ export function ReviewsAndFaqSection({ showFaq = true }: ReviewsAndFaqSectionPro
               {/* Left: Got a Question? + Email Input */}
               <Reveal>
                 <div>
-                  <h3 className="font-heading text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+                  <h3 className="font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
                     Got A Question<br />For Digo Academy?
                   </h3>
                   <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-sm">

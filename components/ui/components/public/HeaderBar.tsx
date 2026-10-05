@@ -61,19 +61,6 @@ export function HeaderBar({ home }: { home: string | null }) {
         scrolled ? 'border-border/80 shadow-sm' : 'border-transparent'
       )}
     >
-      <div className="group flex h-10 w-full items-center overflow-hidden bg-brand-blue text-xs sm:text-sm text-white">
-        <div className="flex w-max animate-marquee whitespace-nowrap group-hover:[animation-play-state:paused]">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="flex items-center">
-              <span className="mx-6 font-medium">Inquiry :</span>
-              <span className="mr-6 flex items-center gap-1.5"><Phone className="size-3.5" /> +977 9801820900</span>
-              <span className="mr-6 flex items-center gap-1.5">
-                <Mail className="size-3.5" /> <a href="mailto:info@digoacademy.com" className="hover:underline">info@digoacademy.com</a>
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-6 px-4 sm:px-6 lg:px-8">
         <Link href="/" aria-label="Digo Academy home" className="shrink-0">
           <BrandLogo className="h-12" />
@@ -83,7 +70,7 @@ export function HeaderBar({ home }: { home: string | null }) {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-black dark:text-white transition-colors hover:bg-muted"
             >
               {link.label}
             </Link>
@@ -130,7 +117,7 @@ export function HeaderBar({ home }: { home: string | null }) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+                  className="rounded-lg px-3 py-2.5 text-sm font-medium text-black dark:text-white transition-colors hover:bg-muted"
                   onClick={() => setOpen(false)}
                 >
                   {link.label}

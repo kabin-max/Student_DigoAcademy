@@ -1,4 +1,4 @@
-import { Clock, Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { Mail, Phone, MessageCircle } from 'lucide-react';
 
 import { ContactForm } from '@/shared/components/public/ContactForm';
 import { HeroHeadline, HeroStage } from '@/shared/components/public/HeroMotion';
@@ -9,30 +9,6 @@ export const metadata = {
   description:
     'Have questions about our live cohorts, curriculum, or career mentorship? Get in touch with our team or schedule a free counseling session.',
 };
-
-const CHANNELS = [
-  {
-    icon: MessageCircle,
-    title: 'Chat on WhatsApp',
-    subtitle: 'Instant responses during working hours',
-    href: 'https://wa.me/9779801820900',
-    color: 'bg-emerald-500/10 text-emerald-600',
-  },
-  {
-    icon: Phone,
-    title: 'Book a Guidance Call',
-    subtitle: '15-min call with an academic advisor',
-    href: '#form',
-    color: 'bg-brand-blue/10 text-brand-blue',
-  },
-  {
-    icon: MapPin,
-    title: 'Visit Our Campus',
-    subtitle: 'Drop by for an in-person walkthrough',
-    href: '#location',
-    color: 'bg-brand-coral/10 text-brand-coral',
-  },
-];
 
 export default function ContactPage() {
   return (
@@ -63,35 +39,12 @@ export default function ContactPage() {
 
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
 
-        {/* Quick Action Channels */}
-        <div className="mb-12 grid gap-4 sm:grid-cols-3">
-          {CHANNELS.map((ch) => {
-            const Icon = ch.icon;
-            return (
-              <a
-                key={ch.title}
-                href={ch.href}
-                className="group flex items-center gap-4 rounded-2xl border border-border/70 bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
-              >
-                <span className={`flex size-12 shrink-0 items-center justify-center rounded-2xl ${ch.color}`}>
-                  <Icon className="size-5" />
-                </span>
-                <div>
-                  <h3 className="font-heading text-base font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {ch.title}
-                  </h3>
-                  <p className="text-xs text-muted-foreground">{ch.subtitle}</p>
-                </div>
-              </a>
-            );
-          })}
-        </div>
 
         {/* Main Two-Column Layout */}
         <div id="form" className="grid gap-8 lg:grid-cols-12">
           {/* Form Side */}
           <div className="lg:col-span-7">
-            <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-lg sm:p-8">
+            <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-lg sm:p-8 h-full">
               <h2 className="font-heading text-2xl font-bold text-foreground">Send us a message</h2>
               <p className="mt-1 text-sm text-muted-foreground mb-6">
                 Fill out the form below and an advisor will reach out to you within 24 hours.
@@ -102,53 +55,34 @@ export default function ContactPage() {
 
           {/* Details & Info Side */}
           <div className="space-y-6 lg:col-span-5">
-            <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-sm sm:p-8 space-y-6">
-              <h3 className="font-heading text-xl font-bold text-foreground">Direct Contact</h3>
+            <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-lg sm:p-8 h-full flex flex-col">
+              <h2 className="font-heading text-2xl font-bold text-foreground">Direct Contact</h2>
+              <p className="mt-1 text-sm text-muted-foreground mb-6">
+                Reach out to us directly via email or phone.
+              </p>
 
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <Mail className="size-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</p>
-                    <a href="mailto:support@digoacademy.com" className="font-medium text-foreground hover:text-primary transition-colors">
-                      support@digoacademy.com
-                    </a>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-blue/10 text-brand-blue">
+                    <Mail className="size-5" />
+                  </span>
+                  <a href="mailto:support@digoacademy.com" className="font-medium text-sm text-foreground hover:text-primary transition-colors">
+                    support@digoacademy.com
+                  </a>
                 </div>
 
-                <div className="flex items-start gap-3">
-                  <Phone className="size-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Admissions Hotline</p>
-                    <a href="tel:+9779801820900" className="font-medium text-foreground hover:text-primary transition-colors">
-                      +977 980-182-0900
-                    </a>
-                  </div>
-                </div>
-
-                <div id="location" className="flex items-start gap-3">
-                  <MapPin className="size-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Learning Hub &amp; Labs</p>
-                    <p className="font-medium text-foreground">
-                      Digo Solutions Pvt.Ltd, Kathmandu, Nepal
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3">
-                  <Clock className="size-5 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Support Hours</p>
-                    <p className="font-medium text-foreground">
-                      Mon - Sat: 9:00 AM - 7:00 PM NPT
-                    </p>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600">
+                    <Phone className="size-5" />
+                  </span>
+                  <a href="tel:+9779801820900" className="font-medium text-sm text-foreground hover:text-primary transition-colors">
+                    +977 980-182-0900
+                  </a>
                 </div>
               </div>
 
               {/* Google Maps Embed */}
-              <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm">
+              <div className="relative overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm mt-8 flex-1 min-h-[250px]">
                 <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
                   <a
                     href="https://maps.google.com/maps?q=Digo%20Solutions%20Pvt.Ltd,%20Kathmandu"
@@ -171,9 +105,7 @@ export default function ContactPage() {
                 </div>
                 <iframe
                   title="Digo Solutions Location"
-                  width="100%"
-                  height="250"
-                  style={{ border: 0 }}
+                  className="w-full h-full border-0 absolute inset-0"
                   loading="lazy"
                   allowFullScreen
                   referrerPolicy="no-referrer-when-downgrade"

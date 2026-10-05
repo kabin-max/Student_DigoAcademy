@@ -101,13 +101,15 @@ export default function AboutPage() {
           {VALUES.map((val) => (
             <StaggerItem key={val.title}>
               <div className="h-full rounded-2xl bg-card p-6 shadow-sm ring-1 ring-border/60 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-                <span className={`flex size-14 items-center justify-center rounded-2xl ${val.color}`}>
-                  <Image src={val.iconSrc} alt={val.title} width={32} height={32} className="object-contain" />
-                </span>
-                <h3 className="mt-5 font-heading text-xl font-bold text-foreground">
-                  {val.title}
-                </h3>
-                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
+                <div className="flex items-center gap-4 mb-4">
+                  <span className={`flex size-14 shrink-0 items-center justify-center rounded-2xl ${val.color}`}>
+                    <Image src={val.iconSrc} alt={val.title} width={32} height={32} className="object-contain" />
+                  </span>
+                  <h3 className="font-heading text-xl font-bold text-foreground">
+                    {val.title}
+                  </h3>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {val.body}
                 </p>
               </div>
@@ -131,7 +133,7 @@ export default function AboutPage() {
           <Reveal delay={150}>
             <div className="mx-auto grid max-w-5xl grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-stretch gap-8">
               {/* Digo Solution Card */}
-              <div className="rounded-2xl border border-border/60 bg-white p-8 shadow-md flex flex-col">
+              <div className="rounded-2xl border border-border/60 bg-white p-8 shadow-md flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-500/30 cursor-pointer">
                 <div className="flex flex-col mb-8">
                   <Image src="/DigoSolution.png" alt="Digo Solution" width={180} height={50} className="object-contain h-10 w-auto self-start" />
                   <span className="text-[10px] font-bold text-muted-foreground tracking-widest mt-2 uppercase">Cloud / Consulting / Training</span>
@@ -159,7 +161,7 @@ export default function AboutPage() {
               </div>
 
               {/* Digo Academy Card */}
-              <div className="rounded-2xl border border-border/60 bg-white p-8 shadow-md flex flex-col">
+              <div className="rounded-2xl border border-border/60 bg-white p-8 shadow-md flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-500/30 cursor-pointer">
                 <div className="flex flex-col mb-8">
                   <Image src="/brand-logo.png" alt="Digo Academy" width={180} height={50} className="object-contain h-10 w-auto self-start" />
                   <span className="text-[10px] font-bold text-muted-foreground tracking-widest mt-2 uppercase">Cloud / DevOps / AI</span>

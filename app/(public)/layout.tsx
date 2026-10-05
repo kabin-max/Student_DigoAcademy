@@ -3,6 +3,7 @@ import Image from 'next/image';
 
 import { PublicFooter } from '@/shared/components/public/PublicFooter';
 import { PublicHeader } from '@/shared/components/public/PublicHeader';
+import { Chatbot } from '@/shared/components/public/Chatbot';
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
@@ -10,7 +11,6 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
       <PublicHeader />
       <main className="flex-1">{children}</main>
       <PublicFooter />
-
       {/* Sticky WhatsApp Tab */}
       <div className="fixed right-0 top-1/2 z-50 -translate-y-1/2">
         <a
@@ -22,7 +22,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         >
           {/* Left-pointing triangle indicator */}
           <div className="absolute top-1/2 right-full -translate-y-1/2 w-0 h-0 border-y-[8px] border-y-transparent border-r-[8px] border-r-[#25D366]" />
-          
+
           <div className="flex flex-col items-center gap-3">
             <Image src="/whatsapp.png" alt="WhatsApp" width={28} height={28} className="object-contain" />
             <span className="[writing-mode:vertical-rl] font-medium tracking-wide text-sm">
@@ -31,6 +31,8 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           </div>
         </a>
       </div>
+
+      <Chatbot />
     </div>
   );
 }
