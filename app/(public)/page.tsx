@@ -47,6 +47,7 @@ import { CourseFinder } from '@/shared/components/public/CourseFinder';
 import { ComparisonSection } from '@/shared/components/public/ComparisonSection';
 import { ReviewsAndFaqSection } from '@/shared/components/public/ReviewsAndFaqSection';
 import { AwsHeroAnimation } from '@/shared/components/public/AwsHeroAnimation';
+import { ConfettiOnView } from '@/shared/components/public/ConfettiOnView';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/utils/cn';
 
@@ -265,7 +266,8 @@ export default async function HomePage() {
       {/* ------------------------------------------------------------------ */}
       {/* Learn from Cloud Professionals                                     */}
       {/* ------------------------------------------------------------------ */}
-      <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8 relative">
+        <ConfettiOnView />
         <Reveal className="mb-12 text-center max-w-3xl mx-auto">
           <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
             Learn from Certified, Become Certified
