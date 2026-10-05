@@ -28,7 +28,7 @@ export default async function BrowseCoursesPage({
       <PageHeader
         icon={<Compass />}
         title="Browse courses"
-        description="Find a course, then request enrollment — our team follows up to get you set up."
+        description="Find a course and enroll instantly — choose your learning mode and head straight to checkout."
       />
 
       <MarketplaceFilters

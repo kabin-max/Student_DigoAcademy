@@ -46,22 +46,34 @@ function getSes(): SESv2Client {
  */
 export async function sendEmail({ to, subject, text, html }: SendEmailInput): Promise<void> {
   if (isEmailConfigured) {
-    await getSes().send(
-      new SendEmailCommand({
-        FromEmailAddress: env.EMAIL_FROM,
-        Destination: { ToAddresses: [to] },
-        Content: {
-          Simple: {
-            Subject: { Data: subject, Charset: 'UTF-8' },
-            Body: {
-              ...(html ? { Html: { Data: html, Charset: 'UTF-8' } } : {}),
-              Text: { Data: text, Charset: 'UTF-8' },
+    try {
+      await getSes().send(
+        new SendEmailCommand({
+          FromEmailAddress: env.EMAIL_FROM,
+          Destination: { ToAddresses: [to] },
+          Content: {
+            Simple: {
+              Subject: { Data: subject, Charset: 'UTF-8' },
+              Body: {
+                ...(html ? { Html: { Data: html, Charset: 'UTF-8' } } : {}),
+                Text: { Data: text, Charset: 'UTF-8' },
+              },
             },
           },
-        },
-      })
-    );
-    return;
+        })
+      );
+      return;
+    } catch (error) {
+      console.error('\n❌ AWS SES EMAIL FAILED TO SEND ❌');
+      console.error(error);
+      console.error('Falling back to logging the email content in the console...\n');
+      
+      // Fallback to logging so they aren't completely blocked
+      console.info(
+        ['', '📧  [fallback dev email]', `  to:      ${to}`, `  subject: ${subject}`, `  body:    ${text}`, ''].join('\n')
+      );
+      return;
+    }
   }
 
   if (env.NODE_ENV === 'production') {

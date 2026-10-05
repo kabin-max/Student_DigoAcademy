@@ -13,7 +13,7 @@ import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/components/u
 import { Input } from '@/shared/components/ui/input';
 import { PasswordInput } from '@/shared/components/ui/password-input';
 
-export function RegisterForm() {
+export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
   const router = useRouter();
   const {
     register,
@@ -22,9 +22,6 @@ export function RegisterForm() {
   } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
 
   async function onSubmit(values: RegisterInput) {
-    // Public sign-up creates student accounts only. Instructors are created by
-    // an admin (Admin ▸ Users ▸ Instructors); there is no public instructor
-    // self-registration.
     const { error } = await authClient.signUp.email({
       name: values.name,
       email: values.email,
@@ -35,8 +32,10 @@ export function RegisterForm() {
       return;
     }
 
-    toast.success('Account created. Check your email to verify your address.');
-    router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
+    // Redirect to the verify-email page so the user knows to check their inbox.
+    const params = new URLSearchParams({ email: values.email });
+    if (redirectTo) params.set('redirectTo', redirectTo);
+    router.push(`/verify-email?${params.toString()}`);
   }
 
   return (
@@ -74,7 +73,10 @@ export function RegisterForm() {
 
       <p className="mt-4 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
+        <Link
+          href={redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : '/login'}
+          className="font-medium text-primary underline-offset-4 hover:underline"
+        >
           Sign in
         </Link>
       </p>

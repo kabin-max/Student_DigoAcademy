@@ -14,6 +14,8 @@ export interface EmailContent {
   intro?: string;
   paragraphs?: string[];
   button?: EmailButton;
+  /** A large, easy-to-read block specifically for OTP codes */
+  otpCode?: string;
   /** Small muted note under the body (e.g. "link expires soon"). */
   footerNote?: string;
 }
@@ -42,6 +44,15 @@ function buttonHtml(button: EmailButton): string {
             </td>
           </tr>
         </table>`;
+}
+
+function otpBoxHtml(code: string): string {
+  return `
+        <div style="margin:24px 0;padding:16px;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:8px;text-align:center;">
+          <span style="font-family:monospace;font-size:32px;font-weight:bold;letter-spacing:6px;color:${BRAND.ink};">
+            ${escapeHtml(code)}
+          </span>
+        </div>`;
 }
 
 export function renderEmail(content: EmailContent): { html: string; text: string } {
@@ -83,6 +94,7 @@ export function renderEmail(content: EmailContent): { html: string; text: string
                   content.heading
                 )}</h1>
                 ${bodyParagraphs}
+                ${content.otpCode ? otpBoxHtml(content.otpCode) : ''}
                 ${content.button ? buttonHtml(content.button) : ''}
                 ${
                   content.footerNote
@@ -108,6 +120,7 @@ export function renderEmail(content: EmailContent): { html: string; text: string
 </html>`;
 
   const textParts = [content.heading, '', ...[content.intro, ...paragraphs].filter(Boolean)];
+  if (content.otpCode) textParts.push('', `Your Verification Code: ${content.otpCode}`);
   if (content.button) textParts.push('', `${content.button.label}: ${content.button.url}`);
   if (content.footerNote) textParts.push('', content.footerNote);
   textParts.push('', `— Digo Academy`);

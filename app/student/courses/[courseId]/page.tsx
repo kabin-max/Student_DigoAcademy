@@ -12,7 +12,7 @@ import {
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { InquiryForm } from '@/features/enrollment/components/InquiryForm';
+import { EnrollButton } from '@/features/enrollment/components/EnrollButton';
 import { getStudentCourseBooking } from '@/features/enrollment/server/data';
 import { CourseThumbnail } from '@/features/marketplace/components/CourseThumbnail';
 import { getMarketplaceCourse } from '@/features/marketplace/server/data';
@@ -92,10 +92,7 @@ export default async function CourseDetailPage({
                 {course.ratingAvg.toFixed(1)} ({course._count.reviews})
               </span>
             ) : null}
-            <span className="flex items-center gap-1">
-              <Users className="size-3.5" />
-              {course._count.enrollments} enrolled
-            </span>
+
           </div>
           <h1 className="mt-2 font-heading text-2xl font-semibold tracking-tight text-white sm:text-3xl">
             {course.title}
@@ -205,23 +202,13 @@ export default async function CourseDetailPage({
                   <Button
                     size="lg"
                     className="w-full"
-                    nativeButton={false}
-                    render={<Link href={`/student/courses/${course.id}/learn`}>Go to course</Link>}
-                  />
-                </div>
-              ) : booking.openInquiry ? (
-                <div className="space-y-2 rounded-xl bg-muted p-3 text-sm">
-                  <p className="font-medium">Inquiry submitted</p>
-                  <p className="text-muted-foreground">
-                    Our team is reviewing your request. Track its status on your{' '}
-                    <Link href="/student/inquiries" className="text-primary underline underline-offset-2">
-                      inquiries
-                    </Link>{' '}
-                    page.
-                  </p>
+                    render={<Link href={`/student/courses/${course.id}/learn`} />}
+                  >
+                    Go to course
+                  </Button>
                 </div>
               ) : (
-                <InquiryForm courseId={course.id} />
+                <EnrollButton courseId={course.id} />
               )}
 
               <p className="text-xs text-muted-foreground">

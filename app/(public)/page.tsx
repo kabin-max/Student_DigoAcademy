@@ -46,6 +46,8 @@ import { StaggerGroup, StaggerItem } from '@/shared/components/public/Stagger';
 import { CourseFinder } from '@/shared/components/public/CourseFinder';
 import { ComparisonSection } from '@/shared/components/public/ComparisonSection';
 import { ReviewsAndFaqSection } from '@/shared/components/public/ReviewsAndFaqSection';
+import { getPromoCourses } from '@/features/courses/server/data';
+import { OfferBanner } from '@/shared/components/public/OfferBanner';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/utils/cn';
 
@@ -164,12 +166,17 @@ function compactNumber(value: number): string {
 }
 
 export default async function HomePage() {
-  const [courses, categories, instructors] = await Promise.all([
+  const [courses, categories, instructors, promoCourses] = await Promise.all([
     getPublishedCourses(DEFAULT_FILTERS),
     getBrowseCategories(8),
     getFeaturedInstructors(8),
+    getPromoCourses(),
   ]);
-  const featured = courses.slice(0, Math.min(courses.length, 8));
+  const difficultyOrder = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
+  const sortedCourses = [...courses].sort((a, b) => {
+    return (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 99) - (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 99);
+  });
+  const featured = sortedCourses.slice(0, 6);
 
   return (
     <div className="flex flex-col">
@@ -235,6 +242,11 @@ export default async function HomePage() {
           </div>
         </HeroStage>
       </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Offer / Promo Banner (If Any Active Promo Courses Exist)           */}
+      {/* ------------------------------------------------------------------ */}
+      <OfferBanner courses={promoCourses} />
 
       {/* ------------------------------------------------------------------ */}
       {/* Trusted By Section                                                 */}
@@ -485,34 +497,12 @@ export default async function HomePage() {
             </div>
 
           </Reveal>
-          <StaggerGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {featured.slice(0, 7).map((course) => (
+          <StaggerGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {featured.map((course) => (
               <StaggerItem key={course.id}>
                 <CourseCard course={course} hrefBase="/courses" showWishlist={false} />
               </StaggerItem>
             ))}
-            {featured.length > 0 && (
-              <StaggerItem>
-                <div className="group relative h-full min-h-[280px] flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-brand-blue/30 bg-gradient-to-br from-brand-blue/5 via-transparent to-brand-blue/10 p-6 text-center transition-all duration-300 hover:border-brand-blue/50 hover:bg-gradient-to-br hover:from-brand-blue/10 hover:to-brand-blue/20 hover:shadow-lg hover:-translate-y-1">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="rounded-full bg-brand-blue/10 p-4 transition-colors duration-300 group-hover:bg-brand-blue/20">
-                      <ArrowRight className="size-8 text-brand-blue transition-transform duration-300 group-hover:translate-x-1" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-heading text-lg font-semibold text-foreground group-hover:text-brand-blue transition-colors duration-300">
-                        Explore More
-                      </h3>
-                      <p className="text-sm text-black dark:text-white group-hover:text-black dark:text-white transition-colors duration-300">
-                        Discover all our courses and find the perfect fit for your learning journey
-                      </p>
-                    </div>
-                  </div>
-                  <Link href="/courses" className="absolute inset-0 rounded-2xl">
-                    <span className="sr-only">View all courses</span>
-                  </Link>
-                </div>
-              </StaggerItem>
-            )}
           </StaggerGroup>
         </section>
       )}

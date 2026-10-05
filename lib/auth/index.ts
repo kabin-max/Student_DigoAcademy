@@ -3,7 +3,7 @@ import 'server-only';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
-import { twoFactor } from 'better-auth/plugins';
+import { twoFactor, emailOTP } from 'better-auth/plugins';
 
 import { db } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
@@ -43,16 +43,9 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url }) => {
-      const { html, text } = renderEmail({
-        heading: 'Verify your email',
-        intro: `Hi ${user.name || 'there'},`,
-        paragraphs: ['Welcome to Digo Academy! Confirm your email address to activate your account.'],
-        button: { label: 'Verify email', url },
-        footerNote: 'This link expires soon.',
-      });
-      await sendEmail({ to: user.email, subject: 'Verify your Digo Academy email', text, html });
-    },
+    // We provide an empty function here to COMPLETELY disable the default magic link.
+    // The emailOTP plugin will handle sending the OTP email instead.
+    sendVerificationEmail: async () => {},
   },
 
   socialProviders: isGoogleAuthEnabled
@@ -109,6 +102,26 @@ export const auth = betterAuth({
 
   plugins: [
     twoFactor({ issuer: 'Digo Academy' }),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        if (type === 'email-verification') {
+          console.log(`\n[DEBUG] better-auth is calling sendVerificationOTP for: ${email}, OTP: ${otp}`);
+          const { html, text } = renderEmail({
+            heading: 'Your Verification Code',
+            intro: `Hi there,`,
+            paragraphs: [
+              'Welcome to Digo Academy! Please use the following One-Time Password (OTP) to activate your account. This code is valid for 5 minutes.'
+            ],
+            // We use the new otpCode property for a big, easy-to-copy box
+            otpCode: otp,
+            footerNote: 'If you did not request this, you can safely ignore this email.',
+          });
+          await sendEmail({ to: email, subject: `${otp} is your Digo Academy verification code`, text, html });
+        }
+      },
+      sendVerificationOnSignUp: true,
+      overrideDefaultEmailVerification: true,
+    }),
     nextCookies(), // keep last — sets cookies on Next.js responses
   ],
 });

@@ -23,7 +23,11 @@ export default async function CoursesPage() {
     getPublishedCourses(DEFAULT_FILTERS),
     getFeaturedInstructors(8),
   ]);
-  const featured = courses.slice(0, 8);
+  const difficultyOrder = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
+  const sortedCourses = [...courses].sort((a, b) => {
+    return (difficultyOrder[a.difficulty as keyof typeof difficultyOrder] || 99) - (difficultyOrder[b.difficulty as keyof typeof difficultyOrder] || 99);
+  });
+  const featured = sortedCourses.slice(0, 6);
 
   return (
     <div className="flex flex-col">
@@ -67,7 +71,7 @@ export default async function CoursesPage() {
               </p>
             </div>
           </Reveal>
-          <StaggerGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <StaggerGroup className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {featured.map((course) => (
               <StaggerItem key={course.id}>
                 <CourseCard course={course} hrefBase="/courses" showWishlist={false} />

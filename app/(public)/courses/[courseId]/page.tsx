@@ -77,10 +77,7 @@ export default async function PublicCourseDetailPage({
                 </span>
                 <span>Created by <span className="font-bold text-foreground">{course.instructor.name}</span></span>
               </div>
-              <span className="flex items-center gap-1">
-                <Users className="size-3.5" />
-                {course._count.enrollments} enrolled
-              </span>
+
               <span className="rounded-full bg-muted px-2 py-0.5">
                 {DIFFICULTY_LABELS[course.difficulty as MarketplaceDifficulty]}
               </span>
@@ -110,6 +107,44 @@ export default async function PublicCourseDetailPage({
               </span>
             </div>
           </div>
+
+          {/* Upcoming Batches */}
+          {course.batches && course.batches.length > 0 && (
+            <div className="rounded-2xl border border-brand-blue/20 bg-brand-blue/5 p-6 space-y-4">
+              <div className="flex items-center gap-2 text-brand-blue font-bold text-lg">
+                <Users className="size-5" />
+                <h2>Upcoming Live Batches</h2>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {course.batches.map((batch) => {
+                  const seatsLeft = Math.max(0, batch.capacity - batch._count.enrollments);
+                  return (
+                    <div
+                      key={batch.id}
+                      className="rounded-xl border border-border/80 bg-background p-4 flex flex-col justify-between space-y-2 shadow-xs"
+                    >
+                      <div>
+                        <span className="font-bold text-foreground text-sm block">{batch.name}</span>
+                        {batch.startDate && (
+                          <span className="text-xs text-muted-foreground block mt-0.5">
+                            Starts: {new Date(batch.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50">
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                          {seatsLeft > 0 ? `${seatsLeft} seats remaining` : 'Full'}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded-full">
+                          Live Cohort
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* About this course */}
           {course.description?.trim() ? (

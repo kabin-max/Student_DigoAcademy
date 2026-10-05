@@ -3,7 +3,13 @@ import { Panel } from '@/shared/components/dashboard/Panel';
 import { BrandLogo } from '@/shared/components/dashboard/BrandLogo';
 import Link from 'next/link';
 
-export default function RegisterPage() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirectTo?: string }>;
+}) {
+  const { redirectTo } = await searchParams;
+
   return (
     <Panel className="p-8 shadow-lg">
       <div className="mb-6 flex flex-col items-center text-center">
@@ -13,7 +19,7 @@ export default function RegisterPage() {
         <h1 className="font-heading text-2xl font-semibold tracking-tight">Create your account</h1>
         <p className="text-sm text-muted-foreground">Start learning with Digo Academy.</p>
       </div>
-      <RegisterForm />
+      <RegisterForm redirectTo={redirectTo} />
     </Panel>
   );
 }

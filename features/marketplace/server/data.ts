@@ -108,6 +108,10 @@ export async function getMarketplaceCourse(courseId: string) {
           student: { select: { name: true, image: true } },
         },
       },
+      batches: {
+        orderBy: { startDate: 'asc' },
+        select: { id: true, name: true, startDate: true, capacity: true, _count: { select: { enrollments: true } } },
+      },
       _count: { select: { enrollments: true, reviews: true } },
     },
   });

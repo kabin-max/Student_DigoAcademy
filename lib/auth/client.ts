@@ -1,4 +1,4 @@
-import { twoFactorClient } from 'better-auth/client/plugins';
+import { twoFactorClient, emailOTPClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 
 /**
@@ -6,7 +6,7 @@ import { createAuthClient } from 'better-auth/react';
  * to our /api/auth/* handler. Import from client components only.
  */
 export const authClient = createAuthClient({
-  plugins: [twoFactorClient()],
+  plugins: [twoFactorClient(), emailOTPClient()],
 });
 
 export const { signIn, signUp, signOut, useSession } = authClient;

@@ -82,3 +82,54 @@ export async function getCourseForAdmin(courseId: string) {
     },
   });
 }
+
+export async function getCourseForCheckout(courseId: string) {
+  try {
+    return await db.course.findUnique({
+      where: { id: courseId },
+      select: {
+        id: true,
+        title: true,
+        subtitle: true,
+        priceCents: true,
+        originalPriceCents: true,
+        currency: true,
+        status: true,
+      },
+    });
+  } catch {
+    return db.course.findUnique({
+      where: { id: courseId },
+      select: {
+        id: true,
+        title: true,
+        subtitle: true,
+        priceCents: true,
+        currency: true,
+        status: true,
+      },
+    });
+  }
+}
+
+export async function getPromoCourses() {
+  try {
+    return await db.course.findMany({
+      where: { isPromo: true, status: 'PUBLISHED' } as any,
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        subtitle: true,
+        description: true,
+        priceCents: true,
+        originalPriceCents: true,
+        currency: true,
+        thumbnailKey: true,
+      },
+    });
+  } catch (err) {
+    console.warn('getPromoCourses query pending prisma generate:', err);
+    return [];
+  }
+}

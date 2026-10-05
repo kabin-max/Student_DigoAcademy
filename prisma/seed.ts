@@ -87,7 +87,7 @@ const COURSES: {
   sections: { title: string; lessons: { title: string; type: 'VIDEO' | 'NOTE'; durationSec?: number }[] }[];
 }[] = [
   {
-    id: 'seed-course-aws-cp',
+    id: 'aws-cloud-practitioner',
     title: 'AWS Cloud Practitioner',
     subtitle: 'Pass the CLF-C02 exam and understand the AWS core.',
     description: '<p>Everything you need to confidently pass the AWS Cloud Practitioner exam.</p>',
@@ -103,7 +103,7 @@ const COURSES: {
     ],
   },
   {
-    id: 'seed-course-aws-ai',
+    id: 'aws-ai-practitioner',
     title: 'AWS AI Practitioner',
     subtitle: 'Master AI on AWS and generative AI foundations.',
     description: '<p>Learn to build and deploy AI solutions on AWS effectively.</p>',
@@ -118,7 +118,7 @@ const COURSES: {
     ],
   },
   {
-    id: 'seed-course-aws-dev',
+    id: 'aws-developer-associate',
     title: 'AWS Developer - Associate',
     subtitle: 'Develop robust, scalable cloud applications on AWS.',
     description: '<p>Comprehensive training for the DVA-C02 exam.</p>',
@@ -133,7 +133,7 @@ const COURSES: {
     ],
   },
   {
-    id: 'seed-course-aws-saa',
+    id: 'aws-solutions-architect',
     title: 'AWS Solutions Architect - Associate',
     subtitle: 'Design high-performing, secure AWS architectures.',
     description: '<p>Pass the SAA-C03 exam with hands-on architecture labs.</p>',
@@ -148,7 +148,7 @@ const COURSES: {
     ],
   },
   {
-    id: 'seed-course-aws-cloudops',
+    id: 'aws-cloudops-architect',
     title: 'AWS CloudOps Architect - Associate',
     subtitle: 'Operate and maintain scalable AWS environments.',
     description: '<p>Learn monitoring, automation, and operational excellence on AWS.</p>',
@@ -163,7 +163,7 @@ const COURSES: {
     ],
   },
   {
-    id: 'seed-course-aws-devops',
+    id: 'aws-devops-engineer',
     title: 'AWS DevOps Engineer - Professional',
     subtitle: 'Master CI/CD, automation, and DevOps on AWS.',
     description: '<p>Advanced training for the DOP-C02 exam.</p>',

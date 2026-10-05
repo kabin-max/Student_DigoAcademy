@@ -88,10 +88,7 @@ export function CourseCard({
                 New
               </span>
             )}
-            <span className="flex items-center gap-1">
-              <Users className="size-3.5" />
-              {course._count.enrollments}
-            </span>
+
           </div>
         </div>
       </div>

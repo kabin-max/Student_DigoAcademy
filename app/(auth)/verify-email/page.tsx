@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import { ResendVerification } from '@/features/auth/components/ResendVerification';
+import { VerifyOtpForm } from '@/features/auth/components/VerifyOtpForm';
 import {
   Card,
   CardContent,
@@ -32,13 +32,18 @@ export default async function VerifyEmailPage({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
-        {email ? <ResendVerification email={email} /> : null}
-        <Link
-          href="/login"
-          className="text-sm font-medium text-primary underline-offset-4 hover:underline"
-        >
-          Back to sign in
-        </Link>
+        {email ? (
+          <VerifyOtpForm email={email} />
+        ) : (
+          <div className="text-center text-sm">
+            <Link
+              href="/login"
+              className="text-primary underline-offset-4 hover:underline font-medium"
+            >
+              Back to sign in
+            </Link>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

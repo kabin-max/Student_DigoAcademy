@@ -1,7 +1,8 @@
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { getCourseForCheckout } from '@/features/courses/server/data';
 import { getGlobalSettings } from '@/features/enrollment/server/settings';
-import { getSession } from '@/lib/auth/session';
+import { requireRole } from '@/lib/auth/session';
+import { ROLES } from '@/shared/constants/roles';
 import { CheckoutForm } from '@/features/enrollment/components/CheckoutForm';
 
 interface PageProps {
@@ -14,15 +15,13 @@ function parseMode(raw?: string): 'GROUP_LIVE' | 'SELF_PACED' {
   return 'GROUP_LIVE';
 }
 
-export default async function CheckoutPage({ params, searchParams }: PageProps) {
+export default async function StudentCheckoutPage({ params, searchParams }: PageProps) {
+  // requireRole already redirects to /login if unauthenticated
+  const session = await requireRole(ROLES.STUDENT);
+
   const { courseId } = await params;
   const { mode: modeParam } = await searchParams;
   const mode = parseMode(modeParam);
-
-  const session = await getSession();
-  if (!session) {
-    redirect(`/login?redirectTo=${encodeURIComponent(`/student/checkout/${courseId}?mode=${mode}`)}`);
-  }
 
   const [course, settings] = await Promise.all([
     getCourseForCheckout(courseId),
