@@ -44,19 +44,19 @@ export function ReviewsAndFaqSection({ showFaq = true }: ReviewsAndFaqSectionPro
   };
 
   return (
-    <section className="relative bg-background py-20 sm:py-28">
+    <section className="relative bg-background py-16">
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
 
         {/* FAQ & Quick Consultation Section */}
         {showFaq && (
-          <div id="faq" className="mt-24 scroll-mt-24 rounded-3xl border border-border/60 bg-slate-50/80 p-8 sm:p-12 shadow-sm">
+          <div id="faq" className="scroll-mt-24 rounded-3xl border border-border/60 bg-slate-50/80 p-8 sm:p-12 shadow-sm">
             <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] items-start">
               {/* Left: Got a Question? + Email Input */}
               <Reveal>
                 <div>
-                  <h3 className="font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
+                  <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
                     Got A Question<br />For Digo Academy?
-                  </h3>
+                  </h2>
                   <p className="mt-4 text-sm text-muted-foreground leading-relaxed max-w-sm">
                     If there are questions you want to ask, talk to our academic counsellors and we will guide you to the right track.
                   </p>
@@ -72,7 +72,7 @@ export function ReviewsAndFaqSection({ showFaq = true }: ReviewsAndFaqSectionPro
                     />
                     <button
                       type="submit"
-                      className="rounded-full bg-slate-900 px-6 py-3 text-xs font-bold text-white shadow-sm transition-all hover:scale-105 hover:bg-slate-800 active:scale-95"
+                      className="rounded-full bg-brand-blue px-6 py-3 text-xs font-bold text-white shadow-sm transition-all hover:scale-105 hover:bg-brand-blue/90 active:scale-95"
                     >
                       Submit
                     </button>

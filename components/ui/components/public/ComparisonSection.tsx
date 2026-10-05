@@ -21,14 +21,14 @@ const OTHERS_DISADVANTAGES = [
 
 export function ComparisonSection() {
   return (
-    <section className="relative overflow-hidden bg-background py-20 text-foreground sm:py-28">
+    <section className="relative overflow-hidden bg-background py-16 text-foreground">
       {/* Background soft ambient accents */}
       <div className="pointer-events-none absolute left-1/4 top-1/3 size-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-500/5 blur-[120px]" />
       <div className="pointer-events-none absolute right-1/4 bottom-1/3 size-96 translate-x-1/2 translate-y-1/2 rounded-full bg-brand-blue/5 blur-[120px]" />
 
       <div className="relative mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <Reveal className="text-center">
-          <h2 className="mt-3 font-heading text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
             What Sets Digo Academy Apart<br /> From Others
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base text-muted-foreground">

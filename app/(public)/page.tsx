@@ -46,6 +46,8 @@ import { StaggerGroup, StaggerItem } from '@/shared/components/public/Stagger';
 import { CourseFinder } from '@/shared/components/public/CourseFinder';
 import { ComparisonSection } from '@/shared/components/public/ComparisonSection';
 import { ReviewsAndFaqSection } from '@/shared/components/public/ReviewsAndFaqSection';
+import { AwsHeroAnimation } from '@/shared/components/public/AwsHeroAnimation';
+import { ConfettiOnView } from '@/shared/components/public/ConfettiOnView';
 import { getPromoCourses } from '@/features/courses/server/data';
 import { OfferBanner } from '@/shared/components/public/OfferBanner';
 import { Button } from '@/shared/components/ui/button';
@@ -190,17 +192,15 @@ export default async function HomePage() {
           <div className="text-left lg:max-w-lg -translate-y-5">
             <HeroHeadline
               className="font-heading text-3xl font-semibold leading-[1.15] tracking-tight sm:text-4xl lg:text-5xl text-foreground" segments={[
-                { text: 'Learn' },
-                { text: 'Globally' },
-                { text: 'Graze' },
-                { text: 'Locally' },
+                { text: 'Master' },
+                { text: 'AWS' },
+                { text: 'Cloud &' },
+                { text: 'DevOps' },
               ]}
             />
             <HeroItem>
               <p className="mt-4 text-sm sm:text-base text-black dark:text-white leading-relaxed">
-                Success isn&apos;t something that happens by chance. It&apos;s a combination of hard
-                effort, perseverance, learning, studying, sacrifice, and, most importantly, a
-                passion for what you&apos;re doing or learning.
+                Success in the modern cloud isn&apos;t just about adopting new tools—it&apos;s about mastering them. We bring unparalleled expertise in AWS Cloud architecture and DevOps automation to accelerate your digital transformation.
               </p>
             </HeroItem>
             <HeroItem className="mt-8 flex flex-col items-start gap-8">
@@ -216,8 +216,8 @@ export default async function HomePage() {
               </div>
               <Magnetic>
                 <Button
-                  size="default"
-                  className="px-7 py-2.5"
+                  size="lg"
+                  className="w-full sm:w-auto px-10 h-14 text-lg"
                   nativeButton={false}
                   render={
                     <Link href="/courses">
@@ -229,15 +229,8 @@ export default async function HomePage() {
             </HeroItem>
           </div>
           <div className="flex-1 w-full lg:max-w-[55%] flex justify-center items-center lg:justify-end pl-0 lg:pl-10 mt-8 lg:mt-0">
-            <div className="relative w-full max-w-2xl">
-              <Image 
-                src="/hero-learning.png" 
-                alt="Hero Learning" 
-                width={800} 
-                height={600} 
-                className="w-full h-auto object-contain [mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)] [-webkit-mask-image:radial-gradient(ellipse_at_center,black_65%,transparent_100%)] drop-shadow-2xl"
-                priority
-              />
+            <div className="relative w-full max-w-2xl flex justify-center items-center py-8">
+              <AwsHeroAnimation />
             </div>
           </div>
         </HeroStage>
@@ -248,9 +241,9 @@ export default async function HomePage() {
       {/* ------------------------------------------------------------------ */}
       <OfferBanner courses={promoCourses} />
 
-      {/* ------------------------------------------------------------------ */}
-      {/* Trusted By Section                                                 */}
-      {/* ------------------------------------------------------------------ */}
+      {/* ------------------------------------------------------------------ 
+          Trusted By Section (Commented out)
+          ------------------------------------------------------------------ 
       <section className="border-y border-border/50 bg-background py-10 overflow-hidden relative">
         <style>{`
           @keyframes slideLeft {
@@ -280,11 +273,13 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      */}
 
       {/* ------------------------------------------------------------------ */}
       {/* Learn from Cloud Professionals                                     */}
       {/* ------------------------------------------------------------------ */}
-      <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-6xl px-4 py-20 sm:px-6 lg:px-8 relative">
+        <ConfettiOnView />
         <Reveal className="mb-12 text-center max-w-3xl mx-auto">
           <h2 className="mt-2 font-heading text-3xl font-semibold tracking-tight text-4xl text-foreground">
             Learn from Certified, Become Certified
