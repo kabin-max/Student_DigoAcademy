@@ -13,8 +13,36 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import { createGuestInquiry } from '@/features/enrollment/server/actions';
 import { presignReceiptUpload } from '@/features/enrollment/server/upload';
+import {
+  contactEmailSchema,
+  fullNameSchema,
+  normalizeWhatsAppNumber,
+  whatsAppNumberSchema,
+} from '@/features/enrollment/schemas';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
+
+type DetailField = 'name' | 'email' | 'phone';
+
+const FIELD_SCHEMAS = {
+  name: fullNameSchema,
+  email: contactEmailSchema,
+  phone: whatsAppNumberSchema,
+} as const;
+
+/** Returns the first validation message for a field, or undefined when valid. */
+function validateField(field: DetailField, value: string): string | undefined {
+  const result = FIELD_SCHEMAS[field].safeParse(value);
+  return result.success ? undefined : (result.error.issues[0]?.message ?? 'Invalid value');
+}
+
+const FIELD_IDS: Record<DetailField, string> = {
+  name: 'checkout-full-name',
+  email: 'checkout-email',
+  phone: 'checkout-whatsapp',
+};
+
+const invalidInputClass = 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20';
 
 interface CheckoutFormProps {
   course: {
@@ -48,6 +76,23 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
     email: user?.email || '',
     phone: '',
   });
+  const [errors, setErrors] = useState<Partial<Record<DetailField, string>>>({});
+  const [touched, setTouched] = useState<Partial<Record<DetailField, boolean>>>({});
+
+  const updateField = (field: DetailField, value: string) => {
+    setDetails((prev) => ({ ...prev, [field]: value }));
+    // Re-validate live only after the user has left the field once.
+    if (touched[field]) {
+      setErrors((prev) => ({ ...prev, [field]: validateField(field, value) }));
+    }
+  };
+
+  const handleBlur = (field: DetailField) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    setErrors((prev) => ({ ...prev, [field]: validateField(field, details[field]) }));
+  };
+
+  const phoneNormalized = normalizeWhatsAppNumber(details.phone);
 
   // Dynamic Price Calculations (NPR)
   const priceNpr = Math.round(course.priceCents / 100);
@@ -74,6 +119,22 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
 
   const handleComplete = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Validate student details first (they appear above the receipt upload).
+    const nextErrors: Partial<Record<DetailField, string>> = {
+      name: validateField('name', details.name),
+      email: validateField('email', details.email),
+      phone: validateField('phone', details.phone),
+    };
+    setErrors(nextErrors);
+    setTouched({ name: true, email: true, phone: true });
+    const firstInvalid = (Object.keys(nextErrors) as DetailField[]).find((k) => nextErrors[k]);
+    if (firstInvalid) {
+      toast.error(nextErrors[firstInvalid]!);
+      document.getElementById(FIELD_IDS[firstInvalid])?.focus();
+      return;
+    }
+
     if (!receiptFile) {
       toast.error('Please upload your payment receipt.');
       return;
@@ -116,17 +177,12 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
         setReceiptUrl(finalReceiptUrl);
       }
 
-      let formattedPhone = details.phone.trim();
-      if (!formattedPhone.startsWith('+')) {
-        formattedPhone = '+977' + formattedPhone.replace(/\D/g, '');
-      }
-
       const result = await createGuestInquiry({
         courseId: course.id,
         mode,
-        name: details.name,
-        email: details.email,
-        phone: formattedPhone,
+        name: details.name.trim().replace(/\s+/g, ' '),
+        email: details.email.trim().toLowerCase(),
+        phone: phoneNormalized ?? details.phone.trim(),
         message: `Receipt Uploaded`,
         receiptUrl: finalReceiptUrl || undefined,
       });
@@ -234,7 +290,7 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
 
         {/* Right Column: Checkout Summary & Form */}
         <div className="lg:col-span-8">
-          <form onSubmit={handleComplete} className="rounded-2xl border border-border/80 bg-white dark:bg-card p-6 sm:p-8 shadow-sm">
+          <form onSubmit={handleComplete} noValidate className="rounded-2xl border border-border/80 bg-white dark:bg-card p-6 sm:p-8 shadow-sm">
             
             {/* Checkout Summary Section */}
             <div className="flex items-center gap-2 mb-6">
@@ -301,35 +357,83 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
 
               <div className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
                 <div>
-                  <label className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">Full Name</label>
-                  <Input 
-                    required 
-                    placeholder="E.g. Jane Doe" 
+                  <label htmlFor={FIELD_IDS.name} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id={FIELD_IDS.name}
+                    autoComplete="name"
+                    maxLength={100}
+                    placeholder="E.g. Jane Doe"
                     value={details.name}
-                    onChange={(e) => setDetails({ ...details, name: e.target.value })}
-                    className="h-10" 
+                    onChange={(e) => updateField('name', e.target.value)}
+                    onBlur={() => handleBlur('name')}
+                    aria-invalid={!!errors.name}
+                    aria-describedby={errors.name ? `${FIELD_IDS.name}-error` : undefined}
+                    className={`h-10 ${errors.name ? invalidInputClass : ''}`}
                   />
+                  {errors.name && (
+                    <p id={`${FIELD_IDS.name}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                      {errors.name}
+                    </p>
+                  )}
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">Email</label>
-                  <Input 
-                    type="email" 
-                    required 
-                    placeholder="jane@example.com" 
+                  <label htmlFor={FIELD_IDS.email} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id={FIELD_IDS.email}
+                    type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    maxLength={254}
+                    placeholder="jane@example.com"
                     value={details.email}
-                    onChange={(e) => setDetails({ ...details, email: e.target.value })}
-                    className="h-10" 
+                    onChange={(e) => updateField('email', e.target.value.replace(/\s/g, ''))}
+                    onBlur={() => handleBlur('email')}
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? `${FIELD_IDS.email}-error` : undefined}
+                    className={`h-10 ${errors.email ? invalidInputClass : ''}`}
                   />
+                  {errors.email && (
+                    <p id={`${FIELD_IDS.email}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">WhatsApp / Phone</label>
-                  <Input 
-                    required 
-                    placeholder="E.g. 9840000000" 
+                  <label htmlFor={FIELD_IDS.phone} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                    WhatsApp Number <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    id={FIELD_IDS.phone}
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    maxLength={20}
+                    placeholder="E.g. 9840000000 or +91 9876543210"
                     value={details.phone}
-                    onChange={(e) => setDetails({ ...details, phone: e.target.value })}
-                    className="h-10" 
+                    // Only allow digits, a leading +, spaces, dashes and brackets.
+                    onChange={(e) => updateField('phone', e.target.value.replace(/[^\d+\s()-]/g, ''))}
+                    onBlur={() => handleBlur('phone')}
+                    aria-invalid={!!errors.phone}
+                    aria-describedby={`${FIELD_IDS.phone}-${errors.phone ? 'error' : 'hint'}`}
+                    className={`h-10 ${errors.phone ? invalidInputClass : ''}`}
                   />
+                  {errors.phone ? (
+                    <p id={`${FIELD_IDS.phone}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                      {errors.phone}
+                    </p>
+                  ) : phoneNormalized ? (
+                    <p id={`${FIELD_IDS.phone}-hint`} className="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                      ✓ We&apos;ll contact you on WhatsApp at {phoneNormalized}
+                    </p>
+                  ) : (
+                    <p id={`${FIELD_IDS.phone}-hint`} className="mt-1.5 text-xs text-gray-500">
+                      Nepali mobile number (98XXXXXXXX). For other countries, include the country code (e.g. +91).
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

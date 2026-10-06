@@ -3,7 +3,6 @@ import Image from 'next/image';
 
 import { PublicFooter } from '@/shared/components/public/PublicFooter';
 import { PublicHeader } from '@/shared/components/public/PublicHeader';
-import { Chatbot } from '@/shared/components/public/Chatbot';
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
@@ -31,8 +30,6 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
           </div>
         </a>
       </div>
-
-      <Chatbot />
     </div>
   );
 }

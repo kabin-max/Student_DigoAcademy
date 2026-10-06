@@ -133,3 +133,36 @@ export async function getPromoCourses() {
     return [];
   }
 }
+
+export async function getUpcomingBatches() {
+  try {
+    return await db.batch.findMany({
+      where: {
+        OR: [
+          { startDate: { gte: new Date() } },
+          { startText: { not: null } },
+        ],
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 4,
+      select: {
+        id: true,
+        name: true,
+        startText: true,
+        startDate: true,
+        course: {
+          select: {
+            id: true,
+            title: true,
+            priceCents: true,
+            originalPriceCents: true,
+            currency: true,
+          }
+        }
+      },
+    });
+  } catch (err) {
+    console.warn('getUpcomingBatches query pending prisma generate:', err);
+    return [];
+  }
+}

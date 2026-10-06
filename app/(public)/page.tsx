@@ -48,8 +48,13 @@ import { ComparisonSection } from '@/shared/components/public/ComparisonSection'
 import { ReviewsAndFaqSection } from '@/shared/components/public/ReviewsAndFaqSection';
 import { AwsHeroAnimation } from '@/shared/components/public/AwsHeroAnimation';
 import { ConfettiOnView } from '@/shared/components/public/ConfettiOnView';
-import { getPromoCourses } from '@/features/courses/server/data';
+import { getPromoCourses, getUpcomingBatches } from '@/features/courses/server/data';
+import { getSettings } from '@/features/settings/server/data';
+import { presignDownload } from '@/lib/storage';
+import { isS3Configured } from '@/lib/env';
 import { OfferBanner } from '@/shared/components/public/OfferBanner';
+import { PopupModal } from '@/shared/components/public/PopupModal';
+import { UpcomingBatchesSection } from '@/shared/components/public/UpcomingBatchesSection';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/utils/cn';
 
@@ -168,11 +173,13 @@ function compactNumber(value: number): string {
 }
 
 export default async function HomePage() {
-  const [courses, categories, instructors, promoCourses] = await Promise.all([
+  const [courses, categories, instructors, promoCourses, settings, upcomingBatches] = await Promise.all([
     getPublishedCourses(DEFAULT_FILTERS),
     getBrowseCategories(8),
     getFeaturedInstructors(8),
     getPromoCourses(),
+    getSettings(),
+    getUpcomingBatches(),
   ]);
   const difficultyOrder = { BEGINNER: 1, INTERMEDIATE: 2, ADVANCED: 3 };
   const sortedCourses = [...courses].sort((a, b) => {
@@ -180,8 +187,24 @@ export default async function HomePage() {
   });
   const featured = sortedCourses.slice(0, 6);
 
+  let popupImageUrl: string | null = null;
+  const popupImageKey = typeof settings['home.popup.imageKey'] === 'string' ? settings['home.popup.imageKey'] : null;
+  if (isS3Configured && popupImageKey) {
+    try {
+      popupImageUrl = await presignDownload(popupImageKey);
+    } catch {
+      popupImageUrl = null;
+    }
+  }
+
   return (
     <div className="flex flex-col">
+      {settings['home.popup.enabled'] && popupImageUrl && (
+        <PopupModal 
+          imageUrl={popupImageUrl} 
+          linkUrl={String(settings['home.popup.linkUrl'] || '/courses')} 
+        />
+      )}
       {/* ------------------------------------------------------------------ */}
       {/* Hero                                                               */}
       {/* ------------------------------------------------------------------ */}
@@ -240,6 +263,11 @@ export default async function HomePage() {
       {/* Offer / Promo Banner (If Any Active Promo Courses Exist)           */}
       {/* ------------------------------------------------------------------ */}
       <OfferBanner courses={promoCourses} />
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Upcoming Batches Section                                           */}
+      {/* ------------------------------------------------------------------ */}
+      <UpcomingBatchesSection batches={upcomingBatches} />
 
       {/* ------------------------------------------------------------------ 
           Trusted By Section (Commented out)

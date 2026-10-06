@@ -1,5 +1,58 @@
-import { isValidPhoneNumber } from 'libphonenumber-js';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import { z } from 'zod';
+
+// ---------------------------------------------------------------------------
+// Shared contact-field validators (used by both the checkout UI and the server)
+// ---------------------------------------------------------------------------
+
+/** Letters (any script), spaces, dots, apostrophes and hyphens. */
+const NAME_PATTERN = /^[\p{L}\p{M}]+(?:[\s.'-]+[\p{L}\p{M}]+)*\.?$/u;
+
+/** Nepali mobile numbers: 10 digits starting 96/97/98 (NTC, Ncell, Smart). */
+const NP_MOBILE_PATTERN = /^9[678]\d{8}$/;
+
+/**
+ * Parse a WhatsApp number typed by the user. Numbers without a `+` country code
+ * are treated as Nepali. Returns the E.164 form (e.g. `+9779841234567`) or
+ * `null` when invalid. Nepali numbers must be mobile, since landlines can't
+ * receive WhatsApp.
+ */
+export function normalizeWhatsAppNumber(raw: string): string | null {
+  const value = raw.trim();
+  if (!value) return null;
+  // Accept "00" international prefix as "+".
+  const prepared = value.startsWith('00') ? `+${value.slice(2)}` : value;
+  const parsed = parsePhoneNumberFromString(prepared, 'NP');
+  if (!parsed || !parsed.isValid()) return null;
+  if (parsed.country === 'NP' && !NP_MOBILE_PATTERN.test(parsed.nationalNumber)) return null;
+  return parsed.number;
+}
+
+export const fullNameSchema = z
+  .string()
+  .trim()
+  .min(1, 'Full name is required')
+  .min(3, 'Name must be at least 3 characters')
+  .max(100, 'Name is too long')
+  .regex(NAME_PATTERN, 'Name can only contain letters, spaces, dots, apostrophes and hyphens')
+  .refine((v) => v.split(/\s+/).filter(Boolean).length >= 2, 'Enter your full name (first and last name)');
+
+export const contactEmailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(1, 'Email is required')
+  .max(254, 'Email is too long')
+  .email('Enter a valid email address');
+
+export const whatsAppNumberSchema = z
+  .string()
+  .trim()
+  .min(1, 'WhatsApp number is required')
+  .refine((v) => normalizeWhatsAppNumber(v) !== null, {
+    message: 'Enter a valid WhatsApp number (e.g. 98XXXXXXXX or +CountryCode number)',
+  })
+  .transform((v) => normalizeWhatsAppNumber(v) as string);
 
 /** Enrollment mode — mirrors the Prisma `EnrollmentMode` enum. */
 export const ENROLLMENT_MODES = ['GROUP_LIVE', 'SELF_PACED'] as const;
@@ -34,13 +87,10 @@ export type CreateInquiryInput = z.infer<typeof createInquirySchema>;
 export const createGuestInquirySchema = z.object({
   courseId: z.string().min(1, 'Missing course.'),
   mode: enrollmentModeSchema,
-  name: z.string().trim().min(2, 'Enter your name').max(100, 'Name is too long'),
-  email: z.string().trim().toLowerCase().email('Enter a valid email'),
-  // Phone number (relaxed validation for testing convenience)
-  phone: z
-    .string()
-    .trim()
-    .min(5, 'Phone number is required'),
+  name: fullNameSchema,
+  email: contactEmailSchema,
+  // WhatsApp number — validated & normalised to E.164 (defaults to Nepal).
+  phone: whatsAppNumberSchema,
   message: z.string().trim().max(1000, 'Keep it under 1000 characters.').optional(),
   receiptUrl: z.string().optional(),
 });

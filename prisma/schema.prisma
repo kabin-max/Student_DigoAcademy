@@ -568,6 +568,7 @@ model Payment {
 model Batch {
   id           String    @id @default(cuid())
   name         String
+  startText    String? // e.g. "Starts Tomorrow", "Starts in 3 days"
   courseId     String
   course       Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
   instructorId String?
@@ -818,13 +819,16 @@ model Notification {
 
 /// Singleton row (id = 'singleton') holding all configurable payment/bank settings.
 model GlobalSettings {
-  id              String   @id @default("singleton")
-  paymentQrUrl    String?  // S3 key for the Fonepay QR image
-  bankName        String?  // e.g. "Nepal Bank Limited"
-  bankAccountName String?  // e.g. "Digo Academy"
-  bankAccountNo   String?  // e.g. "01600107100424000001"
-  bankBranch      String?  // e.g. "Dharan"
-  updatedAt       DateTime @updatedAt
+  id                  String   @id @default("singleton")
+  paymentQrUrl        String?  // S3 key for the Fonepay QR image
+  bankName            String?  // e.g. "Nepal Bank Limited"
+  bankAccountName     String?  // e.g. "Digo Academy"
+  bankAccountNo       String?  // e.g. "01600107100424000001"
+  bankBranch          String?  // e.g. "Dharan"
+  offerBannerUrl      String?  // S3 key for the global offer banner image
+  offerBannerLink     String?  // Optional URL the banner should link to
+  isOfferBannerActive Boolean  @default(false)
+  updatedAt           DateTime @updatedAt
 }
 
 model PlatformSetting {
