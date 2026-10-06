@@ -34,6 +34,36 @@ function formatDuration(totalSec: number): string {
   return `${minutes}m`;
 }
 
+import { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo/metadata';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ courseId: string }>;
+}): Promise<Metadata> {
+  const { courseId } = await params;
+  const course = await getMarketplaceCourse(courseId);
+
+  if (!course) {
+    return buildMetadata({ title: 'Course Not Found', noindex: true });
+  }
+
+  const plainTextDescription = course.description
+    ? course.description.replace(/<[^>]+>/g, '').substring(0, 155)
+    : `Learn ${course.title} at Digo Academy.`;
+
+  return buildMetadata({
+    title: course.title,
+    description: plainTextDescription,
+    path: `/courses/${course.id}`,
+    image: course.thumbnailUrl || undefined,
+  });
+}
+
+import { JsonLd } from '@/components/seo/JsonLd';
+import { SEO_CONFIG } from '@/lib/seo/config';
+
 export default async function PublicCourseDetailPage({
   params,
 }: {
@@ -53,8 +83,29 @@ export default async function PublicCourseDetailPage({
     .substring(0, 2)
     .toUpperCase();
 
+  const jsonLdData = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: course.title,
+    description: course.description?.replace(/<[^>]+>/g, '').substring(0, 500) || `Online course on ${course.title}`,
+    provider: {
+      '@type': 'Organization',
+      name: SEO_CONFIG.siteName,
+      sameAs: SEO_CONFIG.siteUrl,
+    },
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      courseMode: 'Online',
+      instructor: {
+        '@type': 'Person',
+        name: course.instructor.name,
+      },
+    },
+  };
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 space-y-6">
+      <JsonLd data={jsonLdData} />
       <nav className="flex items-center text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-6">
         <Link href="/courses" className="hover:text-primary transition-colors">Courses</Link>
         <span className="mx-2">/</span>
@@ -117,7 +168,7 @@ export default async function PublicCourseDetailPage({
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 {course.batches.map((batch) => {
-                  const seatsLeft = Math.max(0, batch.capacity - batch._count.enrollments);
+                  const seatsLeft = batch.capacity !== null ? Math.max(0, batch.capacity - batch._count.enrollments) : null;
                   return (
                     <div
                       key={batch.id}
@@ -133,7 +184,7 @@ export default async function PublicCourseDetailPage({
                       </div>
                       <div className="flex items-center justify-between text-xs pt-1 border-t border-border/50">
                         <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                          {seatsLeft > 0 ? `${seatsLeft} seats remaining` : 'Full'}
+                          {seatsLeft !== null ? (seatsLeft > 0 ? `${seatsLeft} seats remaining` : 'Full') : 'Unlimited seats'}
                         </span>
                         <span className="text-[10px] font-bold uppercase tracking-wider text-brand-blue bg-brand-blue/10 px-2 py-0.5 rounded-full">
                           Live Cohort

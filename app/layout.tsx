@@ -11,9 +11,45 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+import { SEO_CONFIG } from '@/lib/seo/config';
+
 export const metadata: Metadata = {
-  title: 'Digo Academy',
-  description: 'Digo Academy — Learning Management System',
+  metadataBase: new URL(SEO_CONFIG.siteUrl),
+  title: {
+    default: SEO_CONFIG.defaultTitle,
+    template: `%s | ${SEO_CONFIG.siteName}`,
+  },
+  description: SEO_CONFIG.defaultDescription,
+  applicationName: SEO_CONFIG.siteName,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: SEO_CONFIG.siteUrl,
+    siteName: SEO_CONFIG.siteName,
+    title: SEO_CONFIG.defaultTitle,
+    description: SEO_CONFIG.defaultDescription,
+    images: [
+      {
+        url: '/opengraph-image.png', // Assuming a static image for now, can be replaced with dynamic OG
+        width: 1200,
+        height: 630,
+        alt: SEO_CONFIG.siteName,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: SEO_CONFIG.defaultTitle,
+    description: SEO_CONFIG.defaultDescription,
+    creator: SEO_CONFIG.twitterHandle,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

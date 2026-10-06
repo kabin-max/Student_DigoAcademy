@@ -45,18 +45,21 @@ export async function getStudentUpcomingBatches(
 ): Promise<{ featured: LiveBatch | null; upcoming: LiveBatch[] }> {
   const enrollments = await db.enrollment.findMany({
     where: { studentId, batchId: { not: null } },
-    select: { batchId: true },
-  });
-  const batchIds = [...new Set(enrollments.map((e) => e.batchId).filter((id): id is string => Boolean(id)))];
-  if (batchIds.length === 0) return { featured: null, upcoming: [] };
-
-  const batches = await db.batch.findMany({
-    where: { id: { in: batchIds } },
     include: {
-      course: { select: { id: true, title: true } },
-      instructor: { select: { name: true } },
+      batch: {
+        include: {
+          course: { select: { id: true, title: true } },
+          instructor: { select: { name: true } },
+        },
+      },
     },
   });
+
+  const batches = [...new Map(enrollments.map((e) => [e.batchId, e.batch])).values()].filter(
+    (b) => b !== null
+  );
+
+  if (batches.length === 0) return { featured: null, upcoming: [] };
 
   const liveBatches: LiveBatch[] = batches
     .map((b) => {
@@ -92,20 +95,22 @@ export async function getStudentLive(studentId: string): Promise<{
   upcoming: LiveBatch[];
   recorded: RecordedClassVideo[];
 }> {
-  const { featured, upcoming } = await getStudentUpcomingBatches(studentId);
-  const batchIds = [featured, ...upcoming].filter((b): b is LiveBatch => b !== null).map((b) => b.id);
-  if (batchIds.length === 0) return { featured: null, upcoming: [], recorded: [] };
-
-  const videoRows = await db.batchVideo.findMany({
-    where: { batchId: { in: batchIds } },
-    orderBy: { createdAt: 'desc' },
-    take: 12,
-    include: {
-      batch: {
-        include: { course: { select: { title: true, thumbnailKey: true, category: { select: { name: true } } } } },
+  const [batchesResult, videoRows] = await Promise.all([
+    getStudentUpcomingBatches(studentId),
+    db.batchVideo.findMany({
+      where: { batch: { enrollments: { some: { studentId } } } },
+      orderBy: { createdAt: 'desc' },
+      take: 12,
+      include: {
+        batch: {
+          include: { course: { select: { title: true, thumbnailKey: true, category: { select: { name: true } } } } },
+        },
       },
-    },
-  });
+    }),
+  ]);
+
+  const { featured, upcoming } = batchesResult;
+
   const recorded: RecordedClassVideo[] = await Promise.all(
     videoRows.map(async (row) => ({
       id: row.id,

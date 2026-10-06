@@ -1,3 +1,5 @@
+export const revalidate = 300;
+
 import {
   ArrowRight,
   Award,
@@ -24,6 +26,14 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+import { buildMetadata } from '@/lib/seo/metadata';
+
+export const metadata = buildMetadata({
+  title: 'Home',
+  description: 'Master AWS Cloud & DevOps with practical, hands-on training and expert-led live cohorts.',
+  path: '/',
+});
 
 import certAI from '@/shared/components/public/Cert/AI_practitioner.png';
 import certSecurity from '@/shared/components/public/Cert/Aws_security_specialist.webp';
