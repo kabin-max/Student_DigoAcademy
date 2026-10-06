@@ -19,7 +19,8 @@ export function VerifyOtpForm({ email }: VerifyOtpFormProps) {
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp.length < 6) {
+    const cleanOtp = otp.trim();
+    if (cleanOtp.length < 6) {
       toast.error('Please enter the 6-digit code');
       return;
     }
@@ -28,7 +29,7 @@ export function VerifyOtpForm({ email }: VerifyOtpFormProps) {
     try {
       const { data, error } = await authClient.emailOtp.verifyEmail({
         email,
-        otp,
+        otp: cleanOtp,
       });
 
       if (error) {
@@ -63,14 +64,14 @@ export function VerifyOtpForm({ email }: VerifyOtpFormProps) {
             type="text"
             placeholder="e.g. 123456"
             value={otp}
-            onChange={(e) => setOtp(e.target.value)}
+            onChange={(e) => setOtp(e.target.value.trim())}
             disabled={isVerifying}
-            className="text-center tracking-widest text-lg"
+            className="text-center tracking-widest text-lg font-mono"
             maxLength={6}
             autoComplete="one-time-code"
           />
         </div>
-        <Button type="submit" disabled={isVerifying || otp.length < 6} className="w-full">
+        <Button type="submit" disabled={isVerifying || otp.trim().length < 6} className="w-full">
           {isVerifying ? 'Verifying...' : 'Verify Email'}
         </Button>
       </form>

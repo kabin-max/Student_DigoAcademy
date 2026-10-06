@@ -35,6 +35,14 @@ export function LoginForm({
     });
 
     if (error) {
+      if (
+        error.message?.toLowerCase().includes('not verified') ||
+        (error as { code?: string })?.code === 'EMAIL_NOT_VERIFIED'
+      ) {
+        toast.error('Please verify your email address to continue.');
+        router.push(`/verify-email?email=${encodeURIComponent(values.email)}`);
+        return;
+      }
       toast.error(error.message ?? 'Invalid email or password');
       return;
     }

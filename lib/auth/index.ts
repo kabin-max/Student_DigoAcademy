@@ -43,9 +43,6 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    // We provide an empty function here to COMPLETELY disable the default magic link.
-    // The emailOTP plugin will handle sending the OTP email instead.
-    sendVerificationEmail: async () => {},
   },
 
   socialProviders: isGoogleAuthEnabled
@@ -108,13 +105,13 @@ export const auth = betterAuth({
     twoFactor({ issuer: 'Digo Academy' }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
-        if (type === 'email-verification') {
-          console.log(`\n[DEBUG] better-auth is calling sendVerificationOTP for: ${email}, OTP: ${otp}`);
+        console.log(`\n📧 [AUTH] Sending verification OTP for: ${email}, OTP: ${otp}, type: ${type}`);
+        if (type === 'email-verification' || !type) {
           const { html, text } = renderEmail({
             heading: 'Your Verification Code',
             intro: `Hi there,`,
             paragraphs: [
-              'Welcome to Digo Academy! Please use the following One-Time Password (OTP) to activate your account. This code is valid for 5 minutes.'
+              'Welcome to Digo Academy! Please use the following One-Time Password (OTP) to activate your account. This code is valid for 5 minutes.',
             ],
             // We use the new otpCode property for a big, easy-to-copy box
             otpCode: otp,

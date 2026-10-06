@@ -23,11 +23,10 @@ export default async function VerifyEmailPage({
         <CardDescription>
           {email ? (
             <>
-              We sent a verification link to <span className="font-medium">{email}</span>. Click it to
-              activate your account.
+              We sent a 6-digit verification code to <span className="font-medium text-foreground">{email}</span>. Enter it below to activate your account.
             </>
           ) : (
-            'We sent you a verification link. Click it to activate your account.'
+            'Enter the 6-digit verification code sent to your email to activate your account.'
           )}
         </CardDescription>
       </CardHeader>

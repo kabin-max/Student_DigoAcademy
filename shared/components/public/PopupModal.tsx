@@ -4,40 +4,111 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { X, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
-import { cn } from '@/shared/utils/cn';
 
 interface PopupModalProps {
-  title: string;
-  subtitle: string;
-  buttonText: string;
+  imageUrl?: string;
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
   linkUrl: string;
 }
 
-export function PopupModal({ title, subtitle, buttonText, linkUrl }: PopupModalProps) {
+export function PopupModal({ imageUrl, title, subtitle, buttonText, linkUrl }: PopupModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Show modal after a short delay
-    const timer = setTimeout(() => {
-      const hasSeen = localStorage.getItem('hasSeenPromoModal');
-      if (!hasSeen) {
+    // Check if user already dismissed promo modal in this session
+    const hasSeen = sessionStorage.getItem('hasSeenPromoModal');
+    if (hasSeen) return;
+
+    let isMounted = true;
+    let timerPassed = false;
+    let imageReady = !imageUrl;
+
+    const tryOpen = () => {
+      if (timerPassed && imageReady && isMounted) {
         setIsOpen(true);
       }
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
+    };
+
+    const timer = setTimeout(() => {
+      timerPassed = true;
+      tryOpen();
+    }, 1200);
+
+    if (imageUrl) {
+      const img = new window.Image();
+      img.src = imageUrl;
+      img.onload = () => {
+        if (!isMounted) return;
+        imageReady = true;
+        tryOpen();
+      };
+      img.onerror = () => {
+        imageReady = false;
+      };
+    }
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+    };
+  }, [imageUrl]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   const close = () => {
     setIsOpen(false);
-    localStorage.setItem('hasSeenPromoModal', 'true');
+    sessionStorage.setItem('hasSeenPromoModal', 'true');
   };
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+  if (imageUrl) {
+    return (
       <div 
-        className="relative w-full max-w-md overflow-hidden rounded-3xl bg-gradient-to-br from-brand-blue via-brand-blue/90 to-violet-600 p-1 shadow-2xl animate-in zoom-in-95 duration-300"
+        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm animate-in fade-in duration-200"
+        onClick={close}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Course Offer"
+      >
+        <div 
+          className="relative flex items-center justify-center animate-in zoom-in-95 duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={close}
+            className="absolute -top-3.5 -right-3.5 z-20 flex size-9 items-center justify-center rounded-full bg-black/85 text-white backdrop-blur-md transition-all hover:bg-black hover:scale-110 shadow-2xl cursor-pointer border border-white/20"
+            aria-label="Close"
+          >
+            <X className="size-5" />
+          </button>
+
+          <Link href={linkUrl} onClick={close} className="relative block overflow-hidden rounded-2xl shadow-2xl group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src={imageUrl} 
+              alt="Special Offer" 
+              className="w-auto h-auto max-w-[90vw] max-h-[85vh] object-contain rounded-2xl cursor-pointer transition-transform duration-300 group-hover:scale-[1.01]"
+            />
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div 
+        className="relative w-full max-w-md overflow-hidden rounded-3xl bg-gradient-to-br from-brand-blue via-brand-blue/90 to-violet-600 p-1 shadow-2xl animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -56,12 +127,16 @@ export function PopupModal({ title, subtitle, buttonText, linkUrl }: PopupModalP
             <Sparkles className="size-8" />
           </div>
 
-          <h3 className="mb-2 font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            {title}
-          </h3>
-          <p className="mb-8 text-sm text-muted-foreground sm:text-base leading-relaxed">
-            {subtitle}
-          </p>
+          {title && (
+            <h3 className="mb-2 font-heading text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+              {title}
+            </h3>
+          )}
+          {subtitle && (
+            <p className="mb-8 text-sm text-muted-foreground sm:text-base leading-relaxed">
+              {subtitle}
+            </p>
+          )}
 
           <Button
             size="lg"
@@ -70,7 +145,7 @@ export function PopupModal({ title, subtitle, buttonText, linkUrl }: PopupModalP
             onClick={close}
             render={
               <Link href={linkUrl}>
-                {buttonText} <ArrowRight className="ml-2 size-5" />
+                {buttonText || 'Claim Offer'} <ArrowRight className="ml-2 size-5" />
               </Link>
             }
           />

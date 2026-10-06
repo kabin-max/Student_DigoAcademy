@@ -62,15 +62,25 @@ export async function sendEmail({ to, subject, text, html }: SendEmailInput): Pr
           },
         })
       );
+      console.log(`✅ [SES] Email successfully sent to ${to}: "${subject}"`);
       return;
     } catch (error) {
       console.error('\n❌ AWS SES EMAIL FAILED TO SEND ❌');
       console.error(error);
-      console.error('Falling back to logging the email content in the console...\n');
-      
-      // Fallback to logging so they aren't completely blocked
+      console.warn('⚠️ Falling back to logging the email content in the console...\n');
+
+      // Fallback to logging so they aren't completely blocked in dev
       console.info(
-        ['', '📧  [fallback dev email]', `  to:      ${to}`, `  subject: ${subject}`, `  body:    ${text}`, ''].join('\n')
+        [
+          '',
+          '================================================================================',
+          '📧  [FALLBACK DEV EMAIL - SES FAILED OR SANDBOX RESTRICTION]',
+          `  To:      ${to}`,
+          `  Subject: ${subject}`,
+          `  Body:    ${text}`,
+          '================================================================================',
+          '',
+        ].join('\n')
       );
       return;
     }
