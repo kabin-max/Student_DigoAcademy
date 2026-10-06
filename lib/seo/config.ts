@@ -1,5 +1,5 @@
 export const SEO_CONFIG = {
-  siteUrl: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  siteUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://digo.academy',
   siteName: 'Digo Academy',
   defaultTitle: 'Digo Academy — Learning Management System',
   defaultDescription:

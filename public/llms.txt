@@ -1,0 +1,21 @@
+# Digo Academy
+
+## About
+Digo Academy is a premier learning management platform that specializes in cloud computing, DevOps automation, and modern infrastructure training.
+
+## Offerings
+We provide top-tier, industry-relevant courses including:
+- AWS Certified Cloud Practitioner
+- AWS Certified Solutions Architect (Associate & Professional)
+- AWS Certified Developer
+- AWS Certified DevOps Engineer
+- AWS Certified Security Specialty
+- AWS Certified AI Practitioner
+
+## Learning Modes
+Digo Academy offers a dual-learning approach to suit different needs:
+1. **Live Cohorts**: Interactive, real-time sessions with industry experts, weekly milestones, and peer accountability.
+2. **Self-Paced Mastery**: On-demand video content, interactive labs, and lifetime access for complete flexibility.
+
+## Goal
+Our mission is to bridge the gap between theoretical knowledge and practical application, helping students get certified and gain hands-on skills to succeed in the modern tech ecosystem.
