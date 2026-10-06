@@ -92,6 +92,10 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // refresh once per day
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes cache to reduce DB round-trips
+    },
   },
 
   // Per-account lockout after repeated failed password logins.
