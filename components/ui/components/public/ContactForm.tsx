@@ -18,7 +18,7 @@ const contactSchema = z.object({
   phone: z.string().min(7, 'Please enter a valid phone number'),
   course: z.string().min(1, 'Please select a course or track of interest'),
   message: z.string().min(10, 'Please enter a message (at least 10 characters)'),
-  _gotcha: z.string().max(0, 'Spam detected').optional(), // honeypot
+  _gotcha: z.string().max(0, 'Spam detected').optional().nullable(), // honeypot
 });
 
 type ContactInput = z.infer<typeof contactSchema>;
@@ -52,7 +52,9 @@ export function ContactForm() {
 
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
-      if (value) formData.append(key, value as string);
+      if (value !== undefined && value !== null) {
+        formData.append(key, String(value));
+      }
     });
 
     const result = await sendContactMessage(formData);

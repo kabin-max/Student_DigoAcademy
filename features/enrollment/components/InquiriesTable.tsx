@@ -121,6 +121,12 @@ export function InquiriesTable({ inquiries }: { inquiries: InquiryRow[] }) {
                   {row.contact.phone && (
                     <div className="text-xs text-muted-foreground">{row.contact.phone}</div>
                   )}
+                  {row.message && (
+                    <div className="mt-1.5 max-w-sm rounded-md bg-muted/60 p-2 text-xs text-foreground/80 border border-border/50">
+                      <span className="font-semibold text-muted-foreground block text-[10px] uppercase tracking-wider mb-0.5">Inquiry Message:</span>
+                      <p className="whitespace-pre-wrap">{row.message}</p>
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-3">
                   <Link

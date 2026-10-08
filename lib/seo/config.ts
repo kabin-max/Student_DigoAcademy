@@ -8,6 +8,6 @@ export const SEO_CONFIG = {
   socialMedia: {
     facebook: 'https://facebook.com/digoacademy', // Replace with actual links
     twitter: 'https://twitter.com/digoacademy',
-    linkedin: 'https://linkedin.com/company/digoacademy',
+    linkedin: 'https://www.linkedin.com/company/digo-academy',
   },
 };
