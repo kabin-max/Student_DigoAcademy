@@ -17,11 +17,7 @@ export function CourseCardSkeleton() {
         <Skeleton className="mt-1 h-4 w-full" />
         <Skeleton className="h-4 w-5/6" />
         
-        <div className="mt-auto flex items-center justify-between border-t border-border/60 pt-3">
-          <div className="flex items-center gap-2">
-            <Skeleton className="size-7 rounded-full" />
-            <Skeleton className="h-4 w-24" />
-          </div>
+        <div className="mt-auto flex items-center justify-end border-t border-border/60 pt-3">
           <Skeleton className="h-4 w-12" />
         </div>
       </div>

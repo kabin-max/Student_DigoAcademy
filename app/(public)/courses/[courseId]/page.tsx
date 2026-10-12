@@ -76,13 +76,6 @@ export default async function PublicCourseDetailPage({
 
   const lessonCount = course.sections.reduce((sum, s) => sum + s.lessons.length, 0);
 
-  const initials = course.instructor.name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .substring(0, 2)
-    .toUpperCase();
-
   const jsonLdData = {
     '@context': 'https://schema.org',
     '@type': 'Course',
@@ -122,13 +115,6 @@ export default async function PublicCourseDetailPage({
             </h1>
             
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-brand-blue/10 text-[9px] font-bold text-brand-blue">
-                  {initials}
-                </span>
-                <span>Created by <span className="font-bold text-foreground">{course.instructor.name}</span></span>
-              </div>
-
               <span className="rounded-full bg-muted px-2 py-0.5">
                 {DIFFICULTY_LABELS[course.difficulty as MarketplaceDifficulty]}
               </span>

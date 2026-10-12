@@ -210,13 +210,6 @@ export default async function CourseDetailPage({
               ) : (
                 <EnrollButton courseId={course.id} />
               )}
-
-              <p className="text-xs text-muted-foreground">
-                Taught by <span className="font-medium text-foreground">{course.instructor.name}</span>
-                {course.instructor.instructorProfile?.headline
-                  ? ` · ${course.instructor.instructorProfile.headline}`
-                  : ''}
-              </p>
             </Panel>
           </div>
         </div>

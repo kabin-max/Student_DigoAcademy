@@ -30,9 +30,6 @@ export default async function CourseLearnPage({
           Back to course
         </Link>
         <h1 className="font-heading text-2xl font-semibold tracking-tight">{data.course.title}</h1>
-        <p className="text-sm text-muted-foreground">
-          Taught by {data.course.instructorName}
-        </p>
       </div>
 
       <CoursePlayer data={data} />

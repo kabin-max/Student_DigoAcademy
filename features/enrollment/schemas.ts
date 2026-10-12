@@ -87,7 +87,7 @@ export type CreateInquiryInput = z.infer<typeof createInquirySchema>;
 export const createGuestInquirySchema = z.object({
   courseId: z.string().min(1, 'Missing course.'),
   mode: enrollmentModeSchema,
-  name: fullNameSchema,
+  name: z.string().trim().min(2, 'Name is required').max(150, 'Name is too long'),
   email: contactEmailSchema,
   // WhatsApp number — validated & normalised to E.164 (defaults to Nepal).
   phone: whatsAppNumberSchema,

@@ -2,15 +2,32 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 
 interface PopupModalProps {
   imageUrl: string;
-  linkUrl: string;
+  linkUrl?: string;
 }
 
-export function PopupModal({ imageUrl, linkUrl }: PopupModalProps) {
+export function PopupModal({ imageUrl, linkUrl = '/courses/aws-cloud-practitioner' }: PopupModalProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Normalize target URL: ensure it always routes to Cloud Practitioner course
+  const targetUrl =
+    !linkUrl || linkUrl === '/' || linkUrl === '/courses'
+      ? '/courses/aws-cloud-practitioner'
+      : linkUrl;
+
+  const handleImageClick = (e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    sessionStorage.setItem('hasSeenPromoModal', 'true');
+    setIsOpen(false);
+    router.push(targetUrl);
+  };
 
   useEffect(() => {
     if (!imageUrl) return;
@@ -93,11 +110,16 @@ export function PopupModal({ imageUrl, linkUrl }: PopupModalProps) {
           <X className="size-5" />
         </button>
 
-        <Link href={linkUrl} onClick={close} className="relative block overflow-hidden rounded-2xl shadow-2xl group">
+        <Link 
+          href={targetUrl}
+          onClick={handleImageClick}
+          className="relative block overflow-hidden rounded-2xl shadow-2xl group cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/40"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src={imageUrl} 
             alt="Special Offer" 
+            onClick={handleImageClick}
             className="w-auto h-auto max-w-[90vw] max-h-[85vh] object-contain rounded-2xl cursor-pointer transition-transform duration-300 group-hover:scale-[1.01]"
           />
         </Link>

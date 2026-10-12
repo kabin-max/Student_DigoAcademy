@@ -7,6 +7,7 @@ import {
   UploadCloud,
   ShoppingCart,
   User,
+  Building2,
   Image as ImageIcon,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -22,7 +23,9 @@ import {
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 
+type AccountType = 'individual' | 'company';
 type DetailField = 'name' | 'email' | 'phone';
+type CompanyField = 'companyName' | 'email' | 'phone' | 'panVatNumber';
 
 const FIELD_SCHEMAS = {
   name: fullNameSchema,
@@ -40,6 +43,13 @@ const FIELD_IDS: Record<DetailField, string> = {
   name: 'checkout-full-name',
   email: 'checkout-email',
   phone: 'checkout-whatsapp',
+};
+
+const COMPANY_FIELD_IDS: Record<CompanyField, string> = {
+  companyName: 'checkout-company-name',
+  email: 'checkout-company-email',
+  phone: 'checkout-company-whatsapp',
+  panVatNumber: 'checkout-company-pan-vat',
 };
 
 const invalidInputClass = 'border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/20';
@@ -71,6 +81,8 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
   const [receiptUrl, setReceiptUrl] = useState<string | null>(null);
   const [agreed, setAgreed] = useState(false);
 
+  const [accountType, setAccountType] = useState<AccountType>('individual');
+
   const [details, setDetails] = useState({
     name: user?.name || '',
     email: user?.email || '',
@@ -78,6 +90,15 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
   });
   const [errors, setErrors] = useState<Partial<Record<DetailField, string>>>({});
   const [touched, setTouched] = useState<Partial<Record<DetailField, boolean>>>({});
+
+  const [companyDetails, setCompanyDetails] = useState({
+    companyName: '',
+    email: user?.email || '',
+    phone: '',
+    panVatNumber: '',
+  });
+  const [companyErrors, setCompanyErrors] = useState<Partial<Record<CompanyField, string>>>({});
+  const [companyTouched, setCompanyTouched] = useState<Partial<Record<CompanyField, boolean>>>({});
 
   const updateField = (field: DetailField, value: string) => {
     setDetails((prev) => ({ ...prev, [field]: value }));
@@ -92,7 +113,42 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
     setErrors((prev) => ({ ...prev, [field]: validateField(field, details[field]) }));
   };
 
+  function validateCompanyField(field: CompanyField, value: string): string | undefined {
+    if (field === 'companyName') {
+      const trimmed = value.trim();
+      if (!trimmed) return 'Company name is required.';
+      if (trimmed.length < 2) return 'Company name must be at least 2 characters.';
+      return undefined;
+    }
+    if (field === 'email') {
+      return validateField('email', value);
+    }
+    if (field === 'phone') {
+      return validateField('phone', value);
+    }
+    if (field === 'panVatNumber') {
+      const trimmed = value.trim();
+      if (!trimmed) return 'VAT Number / PAN Number is required.';
+      if (!/^\d{9}$/.test(trimmed)) return 'VAT / PAN number must be exactly 9 digits.';
+      return undefined;
+    }
+    return undefined;
+  }
+
+  const updateCompanyField = (field: CompanyField, value: string) => {
+    setCompanyDetails((prev) => ({ ...prev, [field]: value }));
+    if (companyTouched[field]) {
+      setCompanyErrors((prev) => ({ ...prev, [field]: validateCompanyField(field, value) }));
+    }
+  };
+
+  const handleCompanyBlur = (field: CompanyField) => {
+    setCompanyTouched((prev) => ({ ...prev, [field]: true }));
+    setCompanyErrors((prev) => ({ ...prev, [field]: validateCompanyField(field, companyDetails[field]) }));
+  };
+
   const phoneNormalized = normalizeWhatsAppNumber(details.phone);
+  const companyPhoneNormalized = normalizeWhatsAppNumber(companyDetails.phone);
 
   // Dynamic Price Calculations (NPR)
   const priceNpr = Math.round(course.priceCents / 100);
@@ -120,19 +176,36 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
   const handleComplete = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // 1. Validate student details first (they appear above the receipt upload).
-    const nextErrors: Partial<Record<DetailField, string>> = {
-      name: validateField('name', details.name),
-      email: validateField('email', details.email),
-      phone: validateField('phone', details.phone),
-    };
-    setErrors(nextErrors);
-    setTouched({ name: true, email: true, phone: true });
-    const firstInvalid = (Object.keys(nextErrors) as DetailField[]).find((k) => nextErrors[k]);
-    if (firstInvalid) {
-      toast.error(nextErrors[firstInvalid]!);
-      document.getElementById(FIELD_IDS[firstInvalid])?.focus();
-      return;
+    // 1. Validate student / company details first (they appear above the receipt upload).
+    if (accountType === 'individual') {
+      const nextErrors: Partial<Record<DetailField, string>> = {
+        name: validateField('name', details.name),
+        email: validateField('email', details.email),
+        phone: validateField('phone', details.phone),
+      };
+      setErrors(nextErrors);
+      setTouched({ name: true, email: true, phone: true });
+      const firstInvalid = (Object.keys(nextErrors) as DetailField[]).find((k) => nextErrors[k]);
+      if (firstInvalid) {
+        toast.error(nextErrors[firstInvalid]!);
+        document.getElementById(FIELD_IDS[firstInvalid])?.focus();
+        return;
+      }
+    } else {
+      const nextCompanyErrors: Partial<Record<CompanyField, string>> = {
+        companyName: validateCompanyField('companyName', companyDetails.companyName),
+        email: validateCompanyField('email', companyDetails.email),
+        phone: validateCompanyField('phone', companyDetails.phone),
+        panVatNumber: validateCompanyField('panVatNumber', companyDetails.panVatNumber),
+      };
+      setCompanyErrors(nextCompanyErrors);
+      setCompanyTouched({ companyName: true, email: true, phone: true, panVatNumber: true });
+      const firstInvalid = (Object.keys(nextCompanyErrors) as CompanyField[]).find((k) => nextCompanyErrors[k]);
+      if (firstInvalid) {
+        toast.error(nextCompanyErrors[firstInvalid]!);
+        document.getElementById(COMPANY_FIELD_IDS[firstInvalid])?.focus();
+        return;
+      }
     }
 
     if (!receiptFile) {
@@ -177,13 +250,33 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
         setReceiptUrl(finalReceiptUrl);
       }
 
+      const finalName =
+        accountType === 'individual'
+          ? details.name.trim().replace(/\s+/g, ' ')
+          : companyDetails.companyName.trim().replace(/\s+/g, ' ');
+
+      const finalEmail =
+        accountType === 'individual'
+          ? details.email.trim().toLowerCase()
+          : companyDetails.email.trim().toLowerCase();
+
+      const finalPhone =
+        accountType === 'individual'
+          ? phoneNormalized ?? details.phone.trim()
+          : companyPhoneNormalized ?? companyDetails.phone.trim();
+
+      const finalMessage =
+        accountType === 'individual'
+          ? 'Receipt Uploaded'
+          : `Receipt Uploaded | Account: Company | Company: ${companyDetails.companyName.trim()} | VAT/PAN: ${companyDetails.panVatNumber.trim()}`;
+
       const result = await createGuestInquiry({
         courseId: course.id,
         mode,
-        name: details.name.trim().replace(/\s+/g, ' '),
-        email: details.email.trim().toLowerCase(),
-        phone: phoneNormalized ?? details.phone.trim(),
-        message: `Receipt Uploaded`,
+        name: finalName,
+        email: finalEmail,
+        phone: finalPhone,
+        message: finalMessage,
         receiptUrl: finalReceiptUrl || undefined,
       });
 
@@ -211,7 +304,7 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
             Enrollment Request Received!
           </h1>
           <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
-            Thank you, <span className="font-semibold text-foreground">{details.name}</span>. We will notify you once the review process is complete by the admin of this payment.
+            Thank you, <span className="font-semibold text-foreground">{accountType === 'individual' ? details.name : companyDetails.companyName}</span>. We will notify you once the review process is complete by the admin of this payment.
           </p>
           <div className="mt-6 rounded-2xl border border-border/80 bg-background/90 p-4 text-left text-xs space-y-2">
             <p className="font-bold text-foreground">Next Steps:</p>
@@ -348,94 +441,245 @@ export function CheckoutForm({ course, settings, mode, user }: CheckoutFormProps
             </p>
 
             <div className="border-t border-gray-200 dark:border-border/60 pt-8 mb-6">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="bg-black dark:bg-white rounded-full p-1 text-white dark:text-black">
-                  <User className="size-4" />
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                <div className="flex items-center gap-2">
+                  <div className="bg-black dark:bg-white rounded-full p-1 text-white dark:text-black">
+                    {accountType === 'individual' ? <User className="size-4" /> : <Building2 className="size-4" />}
+                  </div>
+                  <h3 className="font-heading text-lg font-bold text-gray-900 dark:text-foreground">
+                    Student Details
+                  </h3>
                 </div>
-                <h3 className="font-heading text-lg font-bold text-gray-900 dark:text-foreground">Student Details</h3>
+
+                {/* Account Type Selector (Individual vs Company) */}
+                <div
+                  className="inline-flex items-center rounded-xl bg-gray-100 p-1 dark:bg-zinc-800 border border-gray-200/80 dark:border-zinc-700/60 self-start sm:self-auto"
+                  role="radiogroup"
+                  aria-label="Account type"
+                >
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={accountType === 'individual'}
+                    onClick={() => setAccountType('individual')}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                      accountType === 'individual'
+                        ? 'bg-white text-gray-900 shadow-sm dark:bg-zinc-900 dark:text-white'
+                        : 'text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white'
+                    }`}
+                  >
+                    <User className="size-3.5" />
+                    Individual
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={accountType === 'company'}
+                    onClick={() => setAccountType('company')}
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-semibold transition-all ${
+                      accountType === 'company'
+                        ? 'bg-white text-gray-900 shadow-sm dark:bg-zinc-900 dark:text-white'
+                        : 'text-gray-500 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white'
+                    }`}
+                  >
+                    <Building2 className="size-3.5" />
+                    Company
+                  </button>
+                </div>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
-                <div>
-                  <label htmlFor={FIELD_IDS.name} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id={FIELD_IDS.name}
-                    autoComplete="name"
-                    maxLength={100}
-                    placeholder="E.g. Jane Doe"
-                    value={details.name}
-                    onChange={(e) => updateField('name', e.target.value)}
-                    onBlur={() => handleBlur('name')}
-                    aria-invalid={!!errors.name}
-                    aria-describedby={errors.name ? `${FIELD_IDS.name}-error` : undefined}
-                    className={`h-10 ${errors.name ? invalidInputClass : ''}`}
-                  />
-                  {errors.name && (
-                    <p id={`${FIELD_IDS.name}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
-                      {errors.name}
-                    </p>
-                  )}
+              {accountType === 'individual' ? (
+                <div className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
+                  <div>
+                    <label htmlFor={FIELD_IDS.name} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                      Full Name <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      id={FIELD_IDS.name}
+                      autoComplete="name"
+                      maxLength={100}
+                      placeholder="E.g. Jane Doe"
+                      value={details.name}
+                      onChange={(e) => updateField('name', e.target.value)}
+                      onBlur={() => handleBlur('name')}
+                      aria-invalid={!!errors.name}
+                      aria-describedby={errors.name ? `${FIELD_IDS.name}-error` : undefined}
+                      className={`h-10 ${errors.name ? invalidInputClass : ''}`}
+                    />
+                    {errors.name && (
+                      <p id={`${FIELD_IDS.name}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                        {errors.name}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor={FIELD_IDS.email} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                      Email <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      id={FIELD_IDS.email}
+                      type="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      maxLength={254}
+                      placeholder="jane@example.com"
+                      value={details.email}
+                      onChange={(e) => updateField('email', e.target.value.replace(/\s/g, ''))}
+                      onBlur={() => handleBlur('email')}
+                      aria-invalid={!!errors.email}
+                      aria-describedby={errors.email ? `${FIELD_IDS.email}-error` : undefined}
+                      className={`h-10 ${errors.email ? invalidInputClass : ''}`}
+                    />
+                    {errors.email && (
+                      <p id={`${FIELD_IDS.email}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                        {errors.email}
+                      </p>
+                    )}
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label htmlFor={FIELD_IDS.phone} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                      WhatsApp Number <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      id={FIELD_IDS.phone}
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      maxLength={20}
+                      placeholder="E.g. 9840000000 or +91 9876543210"
+                      value={details.phone}
+                      // Only allow digits, a leading +, spaces, dashes and brackets.
+                      onChange={(e) => updateField('phone', e.target.value.replace(/[^\d+\s()-]/g, ''))}
+                      onBlur={() => handleBlur('phone')}
+                      aria-invalid={!!errors.phone}
+                      aria-describedby={`${FIELD_IDS.phone}-${errors.phone ? 'error' : 'hint'}`}
+                      className={`h-10 ${errors.phone ? invalidInputClass : ''}`}
+                    />
+                    {errors.phone ? (
+                      <p id={`${FIELD_IDS.phone}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                        {errors.phone}
+                      </p>
+                    ) : phoneNormalized ? (
+                      <p id={`${FIELD_IDS.phone}-hint`} className="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        ✓ We&apos;ll contact you on WhatsApp at {phoneNormalized}
+                      </p>
+                    ) : (
+                      <p id={`${FIELD_IDS.phone}-hint`} className="mt-1.5 text-xs text-gray-500">
+                        Nepali mobile number (98XXXXXXXX). For other countries, include the country code (e.g. +91).
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor={FIELD_IDS.email} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
-                    Email <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id={FIELD_IDS.email}
-                    type="email"
-                    autoComplete="email"
-                    inputMode="email"
-                    maxLength={254}
-                    placeholder="jane@example.com"
-                    value={details.email}
-                    onChange={(e) => updateField('email', e.target.value.replace(/\s/g, ''))}
-                    onBlur={() => handleBlur('email')}
-                    aria-invalid={!!errors.email}
-                    aria-describedby={errors.email ? `${FIELD_IDS.email}-error` : undefined}
-                    className={`h-10 ${errors.email ? invalidInputClass : ''}`}
-                  />
-                  {errors.email && (
-                    <p id={`${FIELD_IDS.email}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
-                      {errors.email}
-                    </p>
-                  )}
+              ) : (
+                <div className="grid sm:grid-cols-2 gap-x-6 gap-y-5">
+                  <div>
+                    <label htmlFor={COMPANY_FIELD_IDS.companyName} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                      Company Name <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      id={COMPANY_FIELD_IDS.companyName}
+                      autoComplete="organization"
+                      maxLength={150}
+                      placeholder="E.g. Acme Technologies Pvt. Ltd."
+                      value={companyDetails.companyName}
+                      onChange={(e) => updateCompanyField('companyName', e.target.value)}
+                      onBlur={() => handleCompanyBlur('companyName')}
+                      aria-invalid={!!companyErrors.companyName}
+                      aria-describedby={companyErrors.companyName ? `${COMPANY_FIELD_IDS.companyName}-error` : undefined}
+                      className={`h-10 ${companyErrors.companyName ? invalidInputClass : ''}`}
+                    />
+                    {companyErrors.companyName && (
+                      <p id={`${COMPANY_FIELD_IDS.companyName}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                        {companyErrors.companyName}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor={COMPANY_FIELD_IDS.email} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                      Company Email <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      id={COMPANY_FIELD_IDS.email}
+                      type="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      maxLength={254}
+                      placeholder="billing@company.com"
+                      value={companyDetails.email}
+                      onChange={(e) => updateCompanyField('email', e.target.value.replace(/\s/g, ''))}
+                      onBlur={() => handleCompanyBlur('email')}
+                      aria-invalid={!!companyErrors.email}
+                      aria-describedby={companyErrors.email ? `${COMPANY_FIELD_IDS.email}-error` : undefined}
+                      className={`h-10 ${companyErrors.email ? invalidInputClass : ''}`}
+                    />
+                    {companyErrors.email && (
+                      <p id={`${COMPANY_FIELD_IDS.email}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                        {companyErrors.email}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor={COMPANY_FIELD_IDS.phone} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                      WhatsApp Number <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      id={COMPANY_FIELD_IDS.phone}
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      maxLength={20}
+                      placeholder="E.g. 9840000000 or +91 9876543210"
+                      value={companyDetails.phone}
+                      onChange={(e) => updateCompanyField('phone', e.target.value.replace(/[^\d+\s()-]/g, ''))}
+                      onBlur={() => handleCompanyBlur('phone')}
+                      aria-invalid={!!companyErrors.phone}
+                      aria-describedby={`${COMPANY_FIELD_IDS.phone}-${companyErrors.phone ? 'error' : 'hint'}`}
+                      className={`h-10 ${companyErrors.phone ? invalidInputClass : ''}`}
+                    />
+                    {companyErrors.phone ? (
+                      <p id={`${COMPANY_FIELD_IDS.phone}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                        {companyErrors.phone}
+                      </p>
+                    ) : companyPhoneNormalized ? (
+                      <p id={`${COMPANY_FIELD_IDS.phone}-hint`} className="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        ✓ We&apos;ll contact your team on WhatsApp at {companyPhoneNormalized}
+                      </p>
+                    ) : (
+                      <p id={`${COMPANY_FIELD_IDS.phone}-hint`} className="mt-1.5 text-xs text-gray-500">
+                        Nepali mobile number (98XXXXXXXX) or country code.
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor={COMPANY_FIELD_IDS.panVatNumber} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
+                      VAT Number / PAN Number <span className="text-red-500">*</span>
+                    </label>
+                    <Input
+                      id={COMPANY_FIELD_IDS.panVatNumber}
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={9}
+                      placeholder="9-digit PAN or VAT (e.g. 601234567)"
+                      value={companyDetails.panVatNumber}
+                      onChange={(e) => updateCompanyField('panVatNumber', e.target.value.replace(/\D/g, '').slice(0, 9))}
+                      onBlur={() => handleCompanyBlur('panVatNumber')}
+                      aria-invalid={!!companyErrors.panVatNumber}
+                      aria-describedby={companyErrors.panVatNumber ? `${COMPANY_FIELD_IDS.panVatNumber}-error` : undefined}
+                      className={`h-10 ${companyErrors.panVatNumber ? invalidInputClass : ''}`}
+                    />
+                    {companyErrors.panVatNumber ? (
+                      <p id={`${COMPANY_FIELD_IDS.panVatNumber}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
+                        {companyErrors.panVatNumber}
+                      </p>
+                    ) : (
+                      <p className="mt-1.5 text-[11px] text-gray-500">
+                        {companyDetails.panVatNumber ? `${companyDetails.panVatNumber.length}/9 digits` : 'Must be exactly 9 digits.'}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="sm:col-span-2">
-                  <label htmlFor={FIELD_IDS.phone} className="text-xs font-semibold text-gray-900 dark:text-foreground block mb-1.5">
-                    WhatsApp Number <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    id={FIELD_IDS.phone}
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    maxLength={20}
-                    placeholder="E.g. 9840000000 or +91 9876543210"
-                    value={details.phone}
-                    // Only allow digits, a leading +, spaces, dashes and brackets.
-                    onChange={(e) => updateField('phone', e.target.value.replace(/[^\d+\s()-]/g, ''))}
-                    onBlur={() => handleBlur('phone')}
-                    aria-invalid={!!errors.phone}
-                    aria-describedby={`${FIELD_IDS.phone}-${errors.phone ? 'error' : 'hint'}`}
-                    className={`h-10 ${errors.phone ? invalidInputClass : ''}`}
-                  />
-                  {errors.phone ? (
-                    <p id={`${FIELD_IDS.phone}-error`} role="alert" className="mt-1.5 text-xs font-medium text-red-500">
-                      {errors.phone}
-                    </p>
-                  ) : phoneNormalized ? (
-                    <p id={`${FIELD_IDS.phone}-hint`} className="mt-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                      ✓ We&apos;ll contact you on WhatsApp at {phoneNormalized}
-                    </p>
-                  ) : (
-                    <p id={`${FIELD_IDS.phone}-hint`} className="mt-1.5 text-xs text-gray-500">
-                      Nepali mobile number (98XXXXXXXX). For other countries, include the country code (e.g. +91).
-                    </p>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="mb-6 border-t border-gray-200 dark:border-border/60 pt-6">

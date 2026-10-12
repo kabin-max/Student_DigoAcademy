@@ -64,19 +64,7 @@ export function CourseCard({
         {course.subtitle ? (
           <p className="line-clamp-2 text-sm text-muted-foreground">{course.subtitle}</p>
         ) : null}
-        <div className="mt-auto flex items-center justify-between border-t border-border/60 pt-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-brand-blue/10 text-[0.7rem] font-semibold text-brand-blue">
-              {course.instructor.name
-                .split(/\s+/)
-                .slice(0, 2)
-                .map((p) => p.charAt(0).toUpperCase())
-                .join('')}
-            </span>
-            <span className="truncate text-xs text-muted-foreground">
-              {course.instructor.name}
-            </span>
-          </div>
+        <div className="mt-auto flex items-center justify-end border-t border-border/60 pt-3">
           <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
             {course.ratingAvg > 0 ? (
               <span className="flex items-center gap-1">
@@ -88,7 +76,6 @@ export function CourseCard({
                 New
               </span>
             )}
-
           </div>
         </div>
       </div>

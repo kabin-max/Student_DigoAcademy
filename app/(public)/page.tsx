@@ -207,12 +207,21 @@ export default async function HomePage() {
     }
   }
 
+  const cloudPractitionerCourse = courses.find((c) => 
+    c.id === 'aws-cloud-practitioner' || 
+    c.id === 'seed-course-aws-cp' ||
+    /cloud\s*practitioner/i.test(c.title)
+  );
+  const cloudPractitionerUrl = cloudPractitionerCourse 
+    ? `/courses/${cloudPractitionerCourse.id}` 
+    : '/courses/aws-cloud-practitioner';
+
   return (
     <div className="flex flex-col">
       {settings['home.popup.enabled'] && popupImageUrl && (
         <PopupModal 
           imageUrl={popupImageUrl} 
-          linkUrl={String(settings['home.popup.linkUrl'] || '/courses')} 
+          linkUrl={cloudPractitionerUrl} 
         />
       )}
       {/* ------------------------------------------------------------------ */}
