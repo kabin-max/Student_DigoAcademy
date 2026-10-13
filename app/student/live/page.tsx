@@ -1,7 +1,6 @@
 import { CalendarClock, FileText, PlayCircle, Radio, Video } from 'lucide-react';
 import Link from 'next/link';
 
-import { CommunityChat } from '@/features/live/components/CommunityChat';
 import { getStudentLive } from '@/features/live/server/data';
 import { LiveCountdown } from '@/shared/components/dashboard/LiveCountdown';
 import { CourseThumbnail } from '@/features/marketplace/components/CourseThumbnail';
@@ -24,12 +23,10 @@ export default async function StudentLivePage() {
   const { featured, upcoming, recorded } = await getStudentLive(session.user.id);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-      {/* Main column */}
-      <div className="space-y-8">
-        {/* Hero */}
-        {featured ? (
-          <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-brand-blue via-indigo-600 to-violet-600 p-6 text-white shadow-sm sm:p-8">
+    <div className="space-y-8">
+      {/* Hero */}
+      {featured ? (
+        <section className="relative overflow-hidden rounded-3xl bg-linear-to-br from-brand-blue via-indigo-600 to-violet-600 p-6 text-white shadow-sm sm:p-8">
             <div className="pointer-events-none absolute -right-16 -top-16 size-56 rounded-full bg-white/10 blur-3xl" />
             <div className="relative">
               {featured.nextOccurrence ? (
@@ -179,12 +176,6 @@ export default async function StudentLivePage() {
             </ul>
           )}
         </section>
-      </div>
-
-      {/* Community chat */}
-      <aside className="lg:sticky lg:top-24 lg:self-start">
-        <CommunityChat userName={session.user.name} />
-      </aside>
     </div>
   );
 }
