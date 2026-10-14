@@ -64,6 +64,10 @@ const envSchema = z.object({
   S3_ENDPOINT: z.string().optional(),
   /** Path-style addressing — required by MinIO ("true"). */
   S3_FORCE_PATH_STYLE: z.string().optional(),
+
+  // Digo Solution blogs integration (external Supabase project)
+  DIGO_SOLUTION_SUPABASE_URL: z.string().optional(),
+  DIGO_SOLUTION_SUPABASE_ANON_KEY: z.string().optional(),
 });
 
 function parseEnv() {
