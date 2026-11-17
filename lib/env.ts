@@ -68,6 +68,10 @@ const envSchema = z.object({
   // Digo Solution blogs integration (external Supabase project)
   DIGO_SOLUTION_SUPABASE_URL: z.string().optional(),
   DIGO_SOLUTION_SUPABASE_ANON_KEY: z.string().optional(),
+
+  // Google reCAPTCHA v2 (protects signup & contact forms when both are set)
+  RECAPTCHA_SITE_KEY: z.string().optional(),
+  RECAPTCHA_SECRET_KEY: z.string().optional(),
 });
 
 function parseEnv() {
@@ -104,3 +108,7 @@ export const isS3Configured =
  * strict by default and only local dev can opt out.
  */
 export const isMfaEnforced = env.ENFORCE_MFA !== 'false';
+
+/** reCAPTCHA v2 is enabled when both site and secret keys are configured. */
+export const isRecaptchaEnabled =
+  !!env.RECAPTCHA_SITE_KEY && !!env.RECAPTCHA_SECRET_KEY;

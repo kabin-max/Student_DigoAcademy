@@ -24,9 +24,12 @@ const contactSchema = z.object({
 type ContactInput = z.infer<typeof contactSchema>;
 
 import { sendContactMessage } from '@/app/(public)/contact/actions';
+import { RecaptchaV2 } from '@/shared/components/shared/RecaptchaV2';
 
-export function ContactForm() {
+export function ContactForm({ recaptchaSiteKey }: { recaptchaSiteKey?: string }) {
   const [submitted, setSubmitted] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaResetKey, setRecaptchaResetKey] = useState(0);
 
   const {
     register,
@@ -50,21 +53,35 @@ export function ContactForm() {
       return; // silent discard spam
     }
 
+    if (recaptchaSiteKey && !recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification.');
+      return;
+    }
+
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         formData.append(key, String(value));
       }
     });
+    if (recaptchaToken) {
+      formData.append('recaptchaToken', recaptchaToken);
+    }
 
     const result = await sendContactMessage(formData);
 
     if (result.success) {
       setSubmitted(true);
       toast.success('Message sent! An advisor will reach out within 24 hours.');
+      setRecaptchaToken(null);
+      setRecaptchaResetKey((k) => k + 1);
       reset();
     } else {
       toast.error(result.error || 'Failed to send message.');
+      if (recaptchaSiteKey) {
+        setRecaptchaToken(null);
+        setRecaptchaResetKey((k) => k + 1);
+      }
     }
   }
 
@@ -144,6 +161,21 @@ export function ContactForm() {
           />
           <FieldError errors={[errors.message]} />
         </Field>
+
+        {recaptchaSiteKey && (
+          <div className="flex justify-start">
+            <RecaptchaV2
+              siteKey={recaptchaSiteKey}
+              resetTrigger={recaptchaResetKey}
+              onVerify={(token) => setRecaptchaToken(token)}
+              onExpire={() => setRecaptchaToken(null)}
+              onError={() => {
+                setRecaptchaToken(null);
+                toast.error('reCAPTCHA failed to load. Please refresh and try again.');
+              }}
+            />
+          </div>
+        )}
 
         <div className="flex justify-center w-full">
           <Button type="submit" size="lg" disabled={isSubmitting} className="w-fit gap-2 rounded-full px-7 py-2.5 shadow-sm bg-linear-to-r from-brand-blue to-[#00b4d8] text-white hover:opacity-95 uppercase tracking-wider text-xs font-bold">

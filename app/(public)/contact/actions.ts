@@ -1,9 +1,11 @@
 'use server';
 
 import { z } from 'zod';
+import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
+import { verifyRecaptchaToken } from '@/lib/recaptcha';
 
 const contactSchema = z.object({
   name: z.string().trim().min(2, 'Please enter your full name'),
@@ -38,6 +40,23 @@ export async function sendContactMessage(formData: FormData) {
   // Silent discard spam
   if (data._gotcha && data._gotcha.trim().length > 0) {
     return { success: true };
+  }
+
+  // Verify Google reCAPTCHA v2 token before writing to DB or dispatching emails
+  const recaptchaToken = formData.get('recaptchaToken');
+  const headerStore = await headers();
+  const forwardedFor = headerStore.get('x-forwarded-for');
+  const remoteIp = forwardedFor?.split(',')[0]?.trim() || headerStore.get('x-real-ip');
+
+  const captchaResult = await verifyRecaptchaToken(
+    typeof recaptchaToken === 'string' ? recaptchaToken : null,
+    remoteIp
+  );
+  if (!captchaResult.success) {
+    return {
+      success: false,
+      error: captchaResult.error || 'Please complete the reCAPTCHA verification.',
+    };
   }
 
   let inquirySaved = false;
@@ -85,7 +104,7 @@ export async function sendContactMessage(formData: FormData) {
   try {
     // 2a. Send email to admin
     await sendEmail({
-      to: 'info@digoacademy.com',
+      to: 'support@digosolution.com',
       subject: `New Inquiry from ${data.name} - Digo Academy`,
       text: `
 You have received a new inquiry from the Digo Academy Contact Form.

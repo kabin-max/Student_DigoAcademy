@@ -1,5 +1,6 @@
 import { Mail, Phone, MessageCircle } from 'lucide-react';
 
+import { env, isRecaptchaEnabled } from '@/lib/env';
 import { ContactForm } from '@/shared/components/public/ContactForm';
 import { HeroHeadline, HeroStage } from '@/shared/components/public/HeroMotion';
 import { Reveal } from '@/shared/components/public/Reveal';
@@ -49,7 +50,9 @@ export default function ContactPage() {
               <p className="mt-1 text-sm text-muted-foreground mb-6">
                 Fill out the form below and an advisor will reach out to you within 24 hours.
               </p>
-              <ContactForm />
+              <ContactForm
+                recaptchaSiteKey={isRecaptchaEnabled ? env.RECAPTCHA_SITE_KEY : undefined}
+              />
             </div>
           </div>
 

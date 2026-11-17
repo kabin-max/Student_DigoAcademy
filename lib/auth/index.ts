@@ -3,12 +3,12 @@ import 'server-only';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
-import { twoFactor, emailOTP } from 'better-auth/plugins';
+import { twoFactor, emailOTP, captcha } from 'better-auth/plugins';
 
 import { db } from '@/lib/db';
 import { sendEmail } from '@/lib/email';
 import { renderEmail } from '@/lib/email-template';
-import { env, isGoogleAuthEnabled } from '@/lib/env';
+import { env, isGoogleAuthEnabled, isRecaptchaEnabled } from '@/lib/env';
 import { lockoutAfterHook, lockoutBeforeHook } from '@/lib/auth/lockout';
 
 /**
@@ -103,6 +103,15 @@ export const auth = betterAuth({
   },
 
   plugins: [
+    ...(isRecaptchaEnabled
+      ? [
+          captcha({
+            provider: 'google-recaptcha',
+            secretKey: env.RECAPTCHA_SECRET_KEY!,
+            endpoints: ['/sign-up/email'],
+          }),
+        ]
+      : []),
     twoFactor({ issuer: 'Digo Academy' }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {

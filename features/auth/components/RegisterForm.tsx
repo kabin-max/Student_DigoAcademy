@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -8,13 +9,23 @@ import { toast } from 'sonner';
 
 import { registerSchema, type RegisterInput } from '@/features/auth/schemas';
 import { authClient } from '@/lib/auth/client';
+import { RecaptchaV2 } from '@/shared/components/shared/RecaptchaV2';
 import { Button } from '@/shared/components/ui/button';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
 import { PasswordInput } from '@/shared/components/ui/password-input';
 
-export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
+export function RegisterForm({
+  redirectTo,
+  recaptchaSiteKey,
+}: {
+  redirectTo?: string;
+  recaptchaSiteKey?: string;
+}) {
   const router = useRouter();
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+  const [recaptchaResetKey, setRecaptchaResetKey] = useState(0);
+
   const {
     register,
     handleSubmit,
@@ -22,13 +33,31 @@ export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
   } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
 
   async function onSubmit(values: RegisterInput) {
-    const { error } = await authClient.signUp.email({
-      name: values.name,
-      email: values.email,
-      password: values.password,
-    });
+    if (recaptchaSiteKey && !recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification.');
+      return;
+    }
+
+    const { error } = await authClient.signUp.email(
+      {
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      },
+      recaptchaToken
+        ? {
+            headers: {
+              'x-captcha-response': recaptchaToken,
+            },
+          }
+        : undefined
+    );
     if (error) {
       toast.error(error.message ?? 'Registration failed');
+      if (recaptchaSiteKey) {
+        setRecaptchaToken(null);
+        setRecaptchaResetKey((k) => k + 1);
+      }
       return;
     }
 
@@ -66,6 +95,20 @@ export function RegisterForm({ redirectTo }: { redirectTo?: string }) {
           />
           <FieldError errors={[errors.confirmPassword]} />
         </Field>
+        {recaptchaSiteKey && (
+          <div className="flex justify-start">
+            <RecaptchaV2
+              siteKey={recaptchaSiteKey}
+              resetTrigger={recaptchaResetKey}
+              onVerify={(token) => setRecaptchaToken(token)}
+              onExpire={() => setRecaptchaToken(null)}
+              onError={() => {
+                setRecaptchaToken(null);
+                toast.error('reCAPTCHA failed to load. Please refresh and try again.');
+              }}
+            />
+          </div>
+        )}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
