@@ -5,6 +5,8 @@ import { ContactForm } from '@/shared/components/public/ContactForm';
 import { HeroHeadline, HeroStage } from '@/shared/components/public/HeroMotion';
 import { Reveal } from '@/shared/components/public/Reveal';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Contact Us | Digo Academy',
   description:
